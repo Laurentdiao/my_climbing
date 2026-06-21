@@ -51,19 +51,6 @@ export function SessionDetail({ session, gym }: SessionDetailProps) {
               <span>{timeLabel}</span>
             </>
           )}
-          {gym && (
-            <>
-              <span className="text-stone-600">·</span>
-              <span className="flex items-center gap-1.5">
-                <span
-                  className="inline-block h-2 w-2 rounded-full"
-                  style={{ backgroundColor: gym.color || "#a3e635" }}
-                />
-                {gym.name}
-                {gym.city && <span className="text-stone-500">· {gym.city}</span>}
-              </span>
-            </>
-          )}
           <span className="text-stone-600">·</span>
           <span className="text-xs text-stone-500">{disciplineLabel}</span>
           <span className="text-stone-600">·</span>
@@ -102,11 +89,6 @@ export function SessionDetail({ session, gym }: SessionDetailProps) {
                     platform={entry.videoPlatform}
                     title={entry.videoTitle}
                   />
-                  {entry.quantity > 1 && (
-                    <span className="ml-2 text-xs text-stone-600">
-                      (相关视频，非逐条线路视频)
-                    </span>
-                  )}
                 </div>
               )}
             </div>

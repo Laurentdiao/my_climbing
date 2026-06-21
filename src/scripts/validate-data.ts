@@ -47,12 +47,6 @@ function validate() {
         );
         warnings++;
       }
-
-      if (entry.quantity > 1 && entry.videoUrl) {
-        console.warn(
-          `⚠ Entry ${entry.id} has quantity=${entry.quantity} and videoUrl — UI will show this as a "related video", not per-problem video`,
-        );
-      }
     }
   }
 
