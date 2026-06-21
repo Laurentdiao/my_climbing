@@ -5,21 +5,27 @@ import { getGymById } from "../features/climbing/adapters/staticDataRepository";
 import { getSessionEntriesTotal } from "../features/climbing/domain/stats";
 import { ALL_GRADES } from "../features/climbing/domain/grade";
 
-const LS_SESSIONS_KEY = "climbing-local-sessions";
 const LS_TOKEN_KEY = "climbing-gh-token";
+const LS_CHANGES_KEY = "climbing-local-changes";
 
-function loadLocalSessions(): Session[] {
+interface LocalChanges {
+  added: Session[];
+  edited: Session[];
+  deleted: string[];
+}
+
+function loadChanges(): LocalChanges {
   try {
-    const raw = localStorage.getItem(LS_SESSIONS_KEY);
-    if (!raw) return [];
-    return JSON.parse(raw) as Session[];
+    const raw = localStorage.getItem(LS_CHANGES_KEY);
+    if (!raw) return { added: [], edited: [], deleted: [] };
+    return JSON.parse(raw);
   } catch {
-    return [];
+    return { added: [], edited: [], deleted: [] };
   }
 }
 
-function saveLocalSessions(sessions: Session[]) {
-  localStorage.setItem(LS_SESSIONS_KEY, JSON.stringify(sessions));
+function saveChanges(changes: LocalChanges) {
+  localStorage.setItem(LS_CHANGES_KEY, JSON.stringify(changes));
 }
 
 function loadToken(): string {
@@ -32,41 +38,69 @@ function saveToken(token: string) {
 
 export function EditorPage() {
   const [data, setData] = useState<ClimbingLog | null>(null);
-  const [localSessions, setLocalSessions] = useState<Session[]>(loadLocalSessions);
+  const [changes, setChanges] = useState<LocalChanges>(loadChanges);
   const [token, setToken] = useState(loadToken);
   const [publishing, setPublishing] = useState(false);
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
-  const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState<Session | null>(null);
 
   useEffect(() => {
     loadClimbingLog().then(setData);
   }, []);
 
-  const addSession = useCallback(
-    (session: Session) => {
-      const updated = [session, ...localSessions];
-      setLocalSessions(updated);
-      saveLocalSessions(updated);
-      setShowForm(false);
+  const updateChanges = useCallback((next: LocalChanges) => {
+    setChanges(next);
+    saveChanges(next);
+  }, []);
+
+  const handleSave = useCallback(
+    (session: Session, isNew: boolean) => {
+      if (isNew) {
+        const updated = { ...changes, added: [session, ...changes.added] };
+        updateChanges(updated);
+      } else {
+        const updated = {
+          ...changes,
+          edited: changes.edited.filter((s) => s.id !== session.id).concat(session),
+        };
+        updateChanges(updated);
+      }
+      setEditing(null);
       setMessage({ type: "ok", text: "已保存到本地" });
     },
-    [localSessions],
+    [changes, updateChanges],
   );
 
-  const deleteLocalSession = useCallback(
-    (id: string) => {
-      const updated = localSessions.filter((s) => s.id !== id);
-      setLocalSessions(updated);
-      saveLocalSessions(updated);
+  const handleDelete = useCallback(
+    (session: Session) => {
+      const isNew = changes.added.some((s) => s.id === session.id);
+      if (isNew) {
+        updateChanges({ ...changes, added: changes.added.filter((s) => s.id !== session.id) });
+      } else {
+        updateChanges({
+          ...changes,
+          edited: changes.edited.filter((s) => s.id !== session.id),
+          deleted: changes.deleted.includes(session.id)
+            ? changes.deleted
+            : [...changes.deleted, session.id],
+        });
+      }
     },
-    [localSessions],
+    [changes, updateChanges],
   );
 
-  const clearLocal = useCallback(() => {
-    setLocalSessions([]);
-    saveLocalSessions([]);
-    setMessage({ type: "ok", text: "本地记录已清空" });
+  const handleEdit = useCallback((session: Session) => {
+    setEditing(session);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
+
+  const discardChanges = useCallback(() => {
+    updateChanges({ added: [], edited: [], deleted: [] });
+    setMessage({ type: "ok", text: "所有本地修改已撤销" });
+  }, [updateChanges]);
+
+  const changedCount =
+    changes.added.length + changes.edited.length + changes.deleted.length;
 
   const publish = useCallback(async () => {
     if (!data) return;
@@ -78,10 +112,17 @@ export function EditorPage() {
     setMessage(null);
 
     try {
+      const deletedIds = new Set(changes.deleted);
+      const editedIds = new Set(changes.edited.map((s) => s.id));
+      const baseSessions = data.sessions.filter(
+        (s) => !deletedIds.has(s.id) && !editedIds.has(s.id),
+      );
+
       const merged: ClimbingLog = {
         ...data,
-        sessions: [...localSessions, ...data.sessions],
+        sessions: [...changes.added, ...changes.edited, ...baseSessions],
       };
+
       const content = btoa(unescape(encodeURIComponent(JSON.stringify(merged, null, 2))));
 
       const shaResp = await fetch(
@@ -95,7 +136,7 @@ export function EditorPage() {
       const sha = shaData.sha;
 
       const body: Record<string, string> = {
-        message: "data: update climbing log from editor",
+        message: `data: ${changes.added.length} added, ${changes.edited.length} edited, ${changes.deleted.length} deleted`,
         content,
         branch: "main",
       };
@@ -117,27 +158,28 @@ export function EditorPage() {
         throw new Error(err.message || `GitHub API: ${putResp.status}`);
       }
 
-      setLocalSessions([]);
-      saveLocalSessions([]);
-      setMessage({ type: "ok", text: "发布成功！1-2 分钟后公开页面可看到新记录。" });
+      updateChanges({ added: [], edited: [], deleted: [] });
+      setMessage({ type: "ok", text: "发布成功！1-2 分钟后刷新公开页面可见。" });
+
+      loadClimbingLog().then(setData);
     } catch (e: unknown) {
       const errMsg = e instanceof Error ? e.message : "未知错误";
       setMessage({ type: "err", text: `发布失败: ${errMsg}` });
     } finally {
       setPublishing(false);
     }
-  }, [data, localSessions, token]);
+  }, [data, changes, token, updateChanges]);
 
-  const allSessions = [...localSessions, ...(data?.sessions || [])].sort(
-    (a, b) => new Date(b.climbedAt).getTime() - new Date(a.climbedAt).getTime(),
-  );
+  const isDeleted = (id: string) => changes.deleted.includes(id);
+
+  const allSessions = buildSessionList(data?.sessions || [], changes);
 
   return (
     <div className="space-y-5 py-4">
       <div>
         <h1 className="text-lg font-bold text-stone-100">编辑记录</h1>
         <p className="mt-1 text-xs text-stone-500">
-          手机端填写训练，保存到本地，发布到 GitHub。
+          增删改全部在本地完成，修改完点"发布"一次性同步到 GitHub。
         </p>
       </div>
 
@@ -156,7 +198,7 @@ export function EditorPage() {
       <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-4 space-y-3">
         <p className="text-sm font-semibold text-stone-300">GitHub Token 设置</p>
         <p className="text-xs text-stone-500">
-          创建 Fine-grained token：权限选 <strong>Contents: Read and write</strong>，仓库选 Laurentdiao/my_climbing。
+          Fine-grained token：权限 <strong>Contents: Read and write</strong>，仓库 Laurentdiao/my_climbing。
         </p>
         <input
           type="password"
@@ -168,48 +210,67 @@ export function EditorPage() {
           placeholder="github_pat_..."
           className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
         />
-        <p className="text-xs text-stone-600">
-          Token 只存在你的手机浏览器里，不会上传到任何第三方。
-        </p>
       </div>
 
-      <div className="flex items-center gap-2">
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="rounded-lg bg-lime-500 px-4 py-2 text-sm font-semibold text-stone-950 hover:bg-lime-400 transition-colors"
-        >
-          {showForm ? "关闭表单" : "+ 新建训练记录"}
-        </button>
-        {localSessions.length > 0 && (
+      <div className="flex items-center gap-2 flex-wrap">
+        {editing ? (
+          <button
+            onClick={() => setEditing(null)}
+            className="rounded-lg border border-stone-700 px-3 py-2 text-sm text-stone-400 hover:text-stone-200 transition-colors"
+          >
+            取消编辑
+          </button>
+        ) : (
+          <button
+            onClick={() =>
+              handleEdit({
+                id: `new-${Date.now()}`,
+                climbedAt: todayStr(),
+                gymId: data?.gyms[0]?.id || "",
+                discipline: "bouldering",
+                timeOfDay: "evening",
+                notes: "",
+                entries: [],
+              })
+            }
+            className="rounded-lg bg-lime-500 px-4 py-2 text-sm font-semibold text-stone-950 hover:bg-lime-400 transition-colors"
+          >
+            + 新建记录
+          </button>
+        )}
+        {changedCount > 0 && (
           <>
             <span className="text-xs text-stone-500">
-              {localSessions.length} 条待发布
+              {changes.added.length > 0 && `+${changes.added.length}新增 `}
+              {changes.edited.length > 0 && `~${changes.edited.length}修改 `}
+              {changes.deleted.length > 0 && `-${changes.deleted.length}删除 `}
             </span>
             <button
-              onClick={clearLocal}
+              onClick={discardChanges}
               className="rounded-lg px-2 py-1 text-xs text-stone-500 hover:text-red-400 transition-colors"
             >
-              清空
+              撤销全部
             </button>
           </>
         )}
       </div>
 
-      {showForm && (
+      {editing && (
         <SessionEditorForm
           gyms={data?.gyms || []}
-          onSubmit={addSession}
-          onCancel={() => setShowForm(false)}
+          initial={editing.entries.length > 0 ? editing : null}
+          onSave={handleSave}
+          onCancel={() => setEditing(null)}
         />
       )}
 
-      {localSessions.length > 0 && (
+      {changedCount > 0 && (
         <button
           onClick={publish}
           disabled={publishing || !token}
           className="w-full rounded-lg bg-lime-500 px-4 py-3 text-sm font-bold text-stone-950 hover:bg-lime-400 disabled:opacity-50 transition-colors"
         >
-          {publishing ? "发布中..." : `发布 ${localSessions.length} 条记录到 GitHub`}
+          {publishing ? "发布中..." : "发布修改到 GitHub"}
         </button>
       )}
 
@@ -218,58 +279,105 @@ export function EditorPage() {
           全部记录 ({allSessions.length})
         </h3>
         <div className="space-y-2">
-          {allSessions.map((session) => (
-            <div
-              key={session.id}
-              className={`rounded-lg border p-3 ${
-                localSessions.some((s) => s.id === session.id)
-                  ? "border-lime-800 bg-lime-950/20"
-                  : "border-stone-800 bg-stone-900/40"
-              }`}
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-stone-200">
-                    {data && getGymById(data, session.gymId)?.name || session.gymId}
-                  </p>
-                  <p className="text-xs text-stone-500">
-                    {session.climbedAt}
-                    {session.timeOfDay && ` · ${session.timeOfDay}`}
-                    {" · "}{session.entries.length} 组 · {getSessionEntriesTotal(session.entries)} 条线
-                  </p>
+          {allSessions.map((session) => {
+            const isLocalNew = changes.added.some((s) => s.id === session.id);
+            const isLocalEdit = changes.edited.some((s) => s.id === session.id);
+            const isLocalDel = isDeleted(session.id);
+            const isLocal = isLocalNew || isLocalEdit || isLocalDel;
+
+            return (
+              <div
+                key={session.id}
+                className={`rounded-lg border p-3 transition-all ${
+                  isLocalDel ? "border-red-900 bg-red-950/20 opacity-50 line-through" :
+                  isLocal ? "border-lime-800 bg-lime-950/20" :
+                  "border-stone-800 bg-stone-900/40"
+                }`}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="min-w-0 flex-1" onClick={() => handleEdit(session)}>
+                    <p className="text-sm font-medium text-stone-200">
+                      {data && getGymById(data, session.gymId)?.name || session.gymId}
+                      {isLocalNew && <span className="ml-1 text-xs text-lime-400">[新增]</span>}
+                      {isLocalEdit && <span className="ml-1 text-xs text-amber-400">[已修改]</span>}
+                      {isLocalDel && <span className="ml-1 text-xs text-red-400">[待删除]</span>}
+                    </p>
+                    <p className="text-xs text-stone-500 mt-0.5">
+                      {session.climbedAt}
+                      {session.timeOfDay && ` · ${session.timeOfDay}`}
+                      {" · "}{session.entries.length} 组 · {getSessionEntriesTotal(session.entries)} 条线
+                    </p>
+                  </div>
+                  <div className="flex gap-1 ml-2 shrink-0">
+                    <button
+                      onClick={() => handleEdit(session)}
+                      className="rounded px-2 py-1 text-xs text-stone-400 hover:text-lime-400 transition-colors"
+                    >
+                      编辑
+                    </button>
+                    <button
+                      onClick={() => handleDelete(session)}
+                      className="rounded px-2 py-1 text-xs text-stone-400 hover:text-red-400 transition-colors"
+                    >
+                      删除
+                    </button>
+                  </div>
                 </div>
-                {localSessions.some((s) => s.id === session.id) && (
-                  <button
-                    onClick={() => deleteLocalSession(session.id)}
-                    className="text-xs text-stone-500 hover:text-red-400"
-                  >
-                    删除
-                  </button>
-                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
   );
 }
 
+function buildSessionList(
+  published: Session[],
+  changes: LocalChanges,
+): Session[] {
+  const deletedIds = new Set(changes.deleted);
+  const editedIds = new Set(changes.edited.map((s) => s.id));
+  let sessions = published.filter(
+    (s) => !deletedIds.has(s.id) && !editedIds.has(s.id),
+  );
+
+  sessions = [...changes.edited, ...sessions, ...changes.added];
+
+  const seen = new Set<string>();
+  sessions = sessions.filter((s) => {
+    if (seen.has(s.id)) return false;
+    seen.add(s.id);
+    return true;
+  });
+
+  sessions.sort(
+    (a, b) => new Date(b.climbedAt).getTime() - new Date(a.climbedAt).getTime(),
+  );
+
+  return sessions;
+}
+
 function SessionEditorForm({
   gyms,
-  onSubmit,
+  initial,
+  onSave,
   onCancel,
 }: {
   gyms: Gym[];
-  onSubmit: (session: Session) => void;
+  initial: Session | null;
+  onSave: (session: Session, isNew: boolean) => void;
   onCancel: () => void;
 }) {
-  const [gymId, setGymId] = useState(gyms[0]?.id || "");
-  const [climbedAt, setClimbedAt] = useState(todayStr());
-  const [timeOfDay, setTimeOfDay] = useState("evening");
-  const [discipline, setDiscipline] = useState("bouldering");
-  const [notes, setNotes] = useState("");
-  const [entries, setEntries] = useState<Entry[]>([emptyEntry()]);
+  const isNew = !initial || initial.entries.length === 0;
+  const [gymId, setGymId] = useState(initial?.gymId || gyms[0]?.id || "");
+  const [climbedAt, setClimbedAt] = useState(initial?.climbedAt || todayStr());
+  const [timeOfDay, setTimeOfDay] = useState(initial?.timeOfDay || "evening");
+  const [discipline, setDiscipline] = useState<"bouldering" | "lead">(initial?.discipline as "bouldering" | "lead" || "bouldering");
+  const [notes, setNotes] = useState(initial?.notes || "");
+  const [entries, setEntries] = useState<Entry[]>(
+    initial?.entries?.length ? initial.entries : [emptyEntry()],
+  );
   const [gradeInputMode, setGradeInputMode] = useState<"select" | "custom">("select");
 
   function addEntry() {
@@ -289,8 +397,11 @@ function SessionEditorForm({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const id = isNew
+      ? `${climbedAt}-${gymId}-local-${Date.now()}`
+      : initial!.id;
     const session: Session = {
-      id: `${climbedAt}-${gymId}-local-${Date.now()}`,
+      id,
       climbedAt,
       gymId,
       discipline: discipline as "bouldering" | "lead",
@@ -298,7 +409,7 @@ function SessionEditorForm({
       notes,
       entries,
     };
-    onSubmit(session);
+    onSave(session, isNew);
   }
 
   const gradeOptions = discipline === "bouldering"
@@ -307,7 +418,9 @@ function SessionEditorForm({
 
   return (
     <form onSubmit={handleSubmit} className="rounded-xl border border-lime-800 bg-stone-900/60 p-4 space-y-4">
-      <h3 className="text-sm font-semibold text-lime-400">新建训练记录</h3>
+      <h3 className="text-sm font-semibold text-lime-400">
+        {isNew ? "新建训练记录" : "编辑训练记录"}
+      </h3>
 
       <div className="grid grid-cols-2 gap-3">
         <div>
@@ -350,7 +463,7 @@ function SessionEditorForm({
           <label className="block text-xs text-stone-500 mb-1">项目</label>
           <select
             value={discipline}
-            onChange={(e) => setDiscipline(e.target.value)}
+            onChange={(e) => setDiscipline(e.target.value as "bouldering" | "lead")}
             className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 focus:border-lime-400 focus:outline-none"
           >
             <option value="bouldering">抱石</option>
