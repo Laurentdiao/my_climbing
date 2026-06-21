@@ -37,7 +37,7 @@ src/
 
 ## How to Update Records
 
-You can use the `/editor` page to prepare changes in the browser, then publish them to GitHub with a fine-grained token. For safer use, the token is kept only in page memory and is cleared when the page refreshes.
+You can use the `/editor` page to prepare changes in the browser, then publish them to GitHub with a fine-grained token. For convenience on your own phone, the token is saved in that browser's `localStorage` so you only need to enter it once. Use the **清除** button in the editor if you want to remove it.
 
 Manual Git workflow:
 
@@ -104,3 +104,4 @@ If using a `<username>.github.io` repository, the site will be at `https://YOUR_
 - Video files are NOT stored in this repo. Only external links are recorded.
 - All content in the data file is public.
 - Do not commit GitHub tokens, `.env` files, private notes, or unpublished video links.
+- Do not use the editor token save feature on shared or untrusted devices.

@@ -9,11 +9,16 @@ Reviewed the current static GitHub Pages climbing log implementation, with empha
 
 ## Findings
 
-### Resolved: GitHub token persisted in localStorage
+### Accepted Risk: GitHub token persisted in localStorage
 
-The editor previously saved the GitHub token in `localStorage`, which made the token persist across browser restarts and increased exposure if the browser profile, extension environment, or future page script were compromised.
+The editor intentionally saves the GitHub token in `localStorage` so the site owner can enter it once on their phone and publish later without retyping. This is a convenience trade-off for a personal static site.
 
-The token is now kept only in React state. It is cleared on refresh and is not written to persistent browser storage.
+Mitigations:
+
+- The UI states that the token is saved in the current browser.
+- The UI includes a clear button that removes the token from `localStorage`.
+- The README warns not to use this feature on shared or untrusted devices.
+- The token should be fine-grained and limited to this repository with `Contents: Read and write`.
 
 ### Resolved: External video links accepted any scheme
 
@@ -27,7 +32,7 @@ The editor now validates the merged data with the same Zod schema before writing
 
 ## Remaining Risks
 
-- The static editor still sends a user-provided GitHub token from the browser to the GitHub API. This is inherent to a no-server static editor. Use a fine-grained token limited to this repository and `Contents: Read and write`.
+- The static editor stores a user-provided GitHub token in browser `localStorage` and sends it from the browser to the GitHub API. This is inherent to the chosen convenience model for a no-server static editor. Use a fine-grained token limited to this repository and `Contents: Read and write`.
 - The site has no private backend. Anything committed to `src/data/climbing-log.json` and deployed to GitHub Pages should be treated as public.
 - External video availability depends on the external platform.
 - `npm audit --audit-level=moderate` passes, but npm still reports one low-severity advisory in Vite's nested `esbuild` dependency affecting the development server on Windows. `npm audit fix` did not resolve it in this environment because install-script approval is required.
@@ -36,6 +41,7 @@ The editor now validates the merged data with the same Zod schema before writing
 
 - No `dangerouslySetInnerHTML` usage found.
 - No hardcoded API keys, tokens, passwords, or `.env` files found in source.
+- No token value is committed to the repository. Only the local browser stores the user's token.
 - External links open with `rel="noopener noreferrer"`.
 - Video files are ignored by `.gitignore`.
 - GitHub Pages workflow uses OIDC with minimal Pages deployment permissions.

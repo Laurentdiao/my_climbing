@@ -7,6 +7,7 @@ import { ALL_GRADES } from "../features/climbing/domain/grade";
 import { climbingLogSchema } from "../features/climbing/domain/validators";
 
 const LS_CHANGES_KEY = "climbing-local-changes";
+const LS_TOKEN_KEY = "climbing-gh-token";
 const GH_REPO = "Laurentdiao/my_climbing";
 const GH_FILE = "src/data/climbing-log.json";
 const GH_API = `https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`;
@@ -52,10 +53,22 @@ function saveChanges(changes: LocalChanges) {
   localStorage.setItem(LS_CHANGES_KEY, JSON.stringify(changes));
 }
 
+function loadToken(): string {
+  return localStorage.getItem(LS_TOKEN_KEY) || "";
+}
+
+function saveToken(token: string) {
+  if (token) {
+    localStorage.setItem(LS_TOKEN_KEY, token);
+  } else {
+    localStorage.removeItem(LS_TOKEN_KEY);
+  }
+}
+
 export function EditorPage() {
   const [data, setData] = useState<ClimbingLog | null>(null);
   const [changes, setChanges] = useState<LocalChanges>(loadChanges);
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState(loadToken);
   const [publishing, setPublishing] = useState(false);
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [editing, setEditing] = useState<Session | null>(null);
@@ -254,15 +267,38 @@ export function EditorPage() {
       )}
 
       <div className="rounded-2xl border border-stone-800 bg-stone-900/65 p-4 space-y-3 shadow-[0_18px_55px_rgba(0,0,0,0.16)]">
-        <p className="text-sm font-semibold text-stone-300">GitHub Token 设置</p>
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-stone-300">GitHub Token 设置</p>
+            {token && (
+              <p className="mt-1 text-xs text-lime-300">
+                已保存在当前浏览器
+              </p>
+            )}
+          </div>
+          {token && (
+            <button
+              type="button"
+              onClick={() => {
+                setToken("");
+                saveToken("");
+                setMessage({ type: "ok", text: "已清除本机保存的 GitHub Token" });
+              }}
+              className="shrink-0 rounded-lg border border-stone-700 px-2.5 py-1.5 text-xs text-stone-400 hover:border-red-800 hover:text-red-300"
+            >
+              清除
+            </button>
+          )}
+        </div>
         <p className="text-xs leading-relaxed text-stone-500">
-          Fine-grained token：权限 <strong>Contents: Read and write</strong>，仓库 Laurentdiao/my_climbing。Token 只保存在当前页面内存中，刷新后会清空。
+          Fine-grained token：权限 <strong>Contents: Read and write</strong>，仓库 Laurentdiao/my_climbing。Token 会保存在当前手机/浏览器的 localStorage，方便下次直接发布；不要在公用设备上使用。
         </p>
         <input
           type="password"
           value={token}
           onChange={(e) => {
             setToken(e.target.value);
+            saveToken(e.target.value);
           }}
           autoComplete="off"
           spellCheck={false}
