@@ -3,6 +3,7 @@ import type { ClimbingLog, Session, Entry, Gym } from "../features/climbing/doma
 import { loadClimbingLog } from "../features/climbing/adapters/staticDataRepository";
 import { getGymById } from "../features/climbing/adapters/staticDataRepository";
 import { getSessionEntriesTotal } from "../features/climbing/domain/stats";
+import { ALL_GRADES } from "../features/climbing/domain/grade";
 
 const LS_SESSIONS_KEY = "climbing-local-sessions";
 const LS_TOKEN_KEY = "climbing-gh-token";
@@ -47,7 +48,7 @@ export function EditorPage() {
       setLocalSessions(updated);
       saveLocalSessions(updated);
       setShowForm(false);
-      setMessage({ type: "ok", text: "已保存到本地 (localStorage)" });
+      setMessage({ type: "ok", text: "已保存到本地" });
     },
     [localSessions],
   );
@@ -118,7 +119,7 @@ export function EditorPage() {
 
       setLocalSessions([]);
       saveLocalSessions([]);
-      setMessage({ type: "ok", text: "发布成功！GitHub Actions 正在部署，1-2 分钟后可在公开页面看到新记录。" });
+      setMessage({ type: "ok", text: "发布成功！1-2 分钟后公开页面可看到新记录。" });
     } catch (e: unknown) {
       const errMsg = e instanceof Error ? e.message : "未知错误";
       setMessage({ type: "err", text: `发布失败: ${errMsg}` });
@@ -136,7 +137,7 @@ export function EditorPage() {
       <div>
         <h1 className="text-lg font-bold text-stone-100">编辑记录</h1>
         <p className="mt-1 text-xs text-stone-500">
-          在手机上填写训练记录，保存到本地，然后一键发布到 GitHub。
+          手机端填写训练，保存到本地，发布到 GitHub。
         </p>
       </div>
 
@@ -155,7 +156,7 @@ export function EditorPage() {
       <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-4 space-y-3">
         <p className="text-sm font-semibold text-stone-300">GitHub Token 设置</p>
         <p className="text-xs text-stone-500">
-          需要 GitHub Personal Access Token 才能发布。在 GitHub Settings → Developer settings → Personal access tokens → Fine-grained tokens 创建一个，权限只选 <strong>Contents: Read and write</strong>，仓库选 Laurentdiao/my_climbing。
+          创建 Fine-grained token：权限选 <strong>Contents: Read and write</strong>，仓库选 Laurentdiao/my_climbing。
         </p>
         <input
           type="password"
@@ -167,6 +168,9 @@ export function EditorPage() {
           placeholder="github_pat_..."
           className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
         />
+        <p className="text-xs text-stone-600">
+          Token 只存在你的手机浏览器里，不会上传到任何第三方。
+        </p>
       </div>
 
       <div className="flex items-center gap-2">
@@ -179,7 +183,7 @@ export function EditorPage() {
         {localSessions.length > 0 && (
           <>
             <span className="text-xs text-stone-500">
-              {localSessions.length} 条本地记录待发布
+              {localSessions.length} 条待发布
             </span>
             <button
               onClick={clearLocal}
@@ -226,13 +230,11 @@ export function EditorPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-stone-200">
-                    {session.title || session.climbedAt}
+                    {data && getGymById(data, session.gymId)?.name || session.gymId}
                   </p>
                   <p className="text-xs text-stone-500">
                     {session.climbedAt}
-                    {data && getGymById(data, session.gymId)
-                      ? ` · ${getGymById(data, session.gymId)!.name}`
-                      : ""}
+                    {session.timeOfDay && ` · ${session.timeOfDay}`}
                     {" · "}{session.entries.length} 组 · {getSessionEntriesTotal(session.entries)} 条线
                   </p>
                 </div>
@@ -264,9 +266,11 @@ function SessionEditorForm({
 }) {
   const [gymId, setGymId] = useState(gyms[0]?.id || "");
   const [climbedAt, setClimbedAt] = useState(todayStr());
-  const [title, setTitle] = useState("");
+  const [timeOfDay, setTimeOfDay] = useState("evening");
+  const [discipline, setDiscipline] = useState("bouldering");
   const [notes, setNotes] = useState("");
   const [entries, setEntries] = useState<Entry[]>([emptyEntry()]);
+  const [gradeInputMode, setGradeInputMode] = useState<"select" | "custom">("select");
 
   function addEntry() {
     setEntries([...entries, emptyEntry()]);
@@ -289,13 +293,17 @@ function SessionEditorForm({
       id: `${climbedAt}-${gymId}-local-${Date.now()}`,
       climbedAt,
       gymId,
-      discipline: "bouldering",
-      title,
+      discipline: discipline as "bouldering" | "lead",
+      timeOfDay,
       notes,
       entries,
     };
     onSubmit(session);
   }
+
+  const gradeOptions = discipline === "bouldering"
+    ? ALL_GRADES.filter((g) => g.label.startsWith("V"))
+    : ALL_GRADES.filter((g) => g.label.startsWith("5."));
 
   return (
     <form onSubmit={handleSubmit} className="rounded-xl border border-lime-800 bg-stone-900/60 p-4 space-y-4">
@@ -325,15 +333,30 @@ function SessionEditorForm({
         </div>
       </div>
 
-      <div>
-        <label className="block text-xs text-stone-500 mb-1">标题 (可选)</label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="如：周一晚训练"
-          className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
-        />
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs text-stone-500 mb-1">时间段</label>
+          <select
+            value={timeOfDay}
+            onChange={(e) => setTimeOfDay(e.target.value)}
+            className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 focus:border-lime-400 focus:outline-none"
+          >
+            <option value="morning">上午</option>
+            <option value="afternoon">下午</option>
+            <option value="evening">晚上</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs text-stone-500 mb-1">项目</label>
+          <select
+            value={discipline}
+            onChange={(e) => setDiscipline(e.target.value)}
+            className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 focus:border-lime-400 focus:outline-none"
+          >
+            <option value="bouldering">抱石</option>
+            <option value="lead">难度</option>
+          </select>
+        </div>
       </div>
 
       <div>
@@ -342,7 +365,7 @@ function SessionEditorForm({
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={2}
-          placeholder="训练感受、注意点..."
+          placeholder="训练感受..."
           className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
         />
       </div>
@@ -375,40 +398,58 @@ function SessionEditorForm({
                 )}
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
-                <div>
-                  <label className="block text-xs text-stone-600 mb-0.5">难度</label>
-                  <select
+              <div className="flex items-center gap-2 mb-1">
+                <button
+                  type="button"
+                  onClick={() => setGradeInputMode("select")}
+                  className={`text-xs px-2 py-0.5 rounded ${gradeInputMode === "select" ? "bg-lime-400/20 text-lime-400" : "text-stone-500"}`}
+                >
+                  预设
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGradeInputMode("custom")}
+                  className={`text-xs px-2 py-0.5 rounded ${gradeInputMode === "custom" ? "bg-lime-400/20 text-lime-400" : "text-stone-500"}`}
+                >
+                  自定义
+                </button>
+              </div>
+
+              {gradeInputMode === "select" ? (
+                <select
+                  value={entry.gradeLabel}
+                  onChange={(e) => {
+                    const label = e.target.value;
+                    const found = ALL_GRADES.find((g) => g.label === label);
+                    updateEntry(i, "gradeLabel", label);
+                    updateEntry(i, "gradeRank", found?.rank || 0);
+                  }}
+                  className="w-full rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 focus:border-lime-400 focus:outline-none"
+                >
+                  {gradeOptions.map((g) => (
+                    <option key={g.label} value={g.label}>{g.label}</option>
+                  ))}
+                </select>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
                     value={entry.gradeLabel}
-                    onChange={(e) => {
-                      const label = e.target.value;
-                      const ranks: Record<string, number> = {
-                        V0: 0, V1: 10, V2: 20, V3: 30, V4: 40, V5: 50, V6: 60, V7: 70, V8: 80, V9: 90, V10: 100,
-                      };
-                      updateEntry(i, "gradeLabel", label);
-                      updateEntry(i, "gradeRank", ranks[label] || 0);
-                    }}
-                    className="w-full rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 focus:border-lime-400 focus:outline-none"
-                  >
-                    {["V0","V1","V2","V3","V4","V5","V6","V7","V8","V9","V10"].map((v) => (
-                      <option key={v} value={v}>{v}</option>
-                    ))}
-                  </select>
+                    onChange={(e) => updateEntry(i, "gradeLabel", e.target.value)}
+                    placeholder="如 V4, 5.10a"
+                    className="flex-1 rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
+                  />
+                  <input
+                    type="number"
+                    value={entry.gradeRank}
+                    onChange={(e) => updateEntry(i, "gradeRank", parseInt(e.target.value) || 0)}
+                    placeholder="排序值"
+                    className="w-20 rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
+                  />
                 </div>
-                <div>
-                  <label className="block text-xs text-stone-600 mb-0.5">结果</label>
-                  <select
-                    value={entry.result}
-                    onChange={(e) => updateEntry(i, "result", e.target.value)}
-                    className="w-full rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 focus:border-lime-400 focus:outline-none"
-                  >
-                    <option value="flash">Flash</option>
-                    <option value="sent">Sent</option>
-                    <option value="repeat">Repeat</option>
-                    <option value="attempted">尝试中</option>
-                    <option value="project">Project</option>
-                  </select>
-                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-xs text-stone-600 mb-0.5">数量</label>
                   <input
@@ -416,22 +457,6 @@ function SessionEditorForm({
                     min={1}
                     value={entry.quantity}
                     onChange={(e) => updateEntry(i, "quantity", Math.max(1, parseInt(e.target.value) || 1))}
-                    className="w-full rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 focus:border-lime-400 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <label className="block text-xs text-stone-600 mb-0.5">尝试次数 (可选)</label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={entry.attempts ?? ""}
-                    onChange={(e) => {
-                      const v = e.target.value;
-                      updateEntry(i, "attempts", v === "" ? null as unknown as number : Math.max(0, parseInt(v) || 0));
-                    }}
                     className="w-full rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 focus:border-lime-400 focus:outline-none"
                   />
                 </div>
@@ -487,8 +512,6 @@ function emptyEntry(): Entry {
     discipline: "bouldering",
     gradeLabel: "V3",
     gradeRank: 30,
-    result: "sent",
-    attempts: 1,
     quantity: 1,
     notes: "",
     videoUrl: "",

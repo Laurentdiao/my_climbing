@@ -25,7 +25,7 @@ const sampleData: ClimbingLog = {
       climbedAt: "2026-01-01",
       gymId: "gym-a",
       discipline: "bouldering",
-      title: "",
+      timeOfDay: "evening",
       notes: "",
       entries: [
         {
@@ -33,8 +33,6 @@ const sampleData: ClimbingLog = {
           discipline: "bouldering",
           gradeLabel: "V3",
           gradeRank: 30,
-          result: "sent",
-          attempts: 1,
           quantity: 3,
           notes: "",
           videoUrl: "",
@@ -46,8 +44,6 @@ const sampleData: ClimbingLog = {
           discipline: "bouldering",
           gradeLabel: "V5",
           gradeRank: 50,
-          result: "flash",
-          attempts: 1,
           quantity: 1,
           notes: "",
           videoUrl: "",
@@ -61,7 +57,7 @@ const sampleData: ClimbingLog = {
       climbedAt: "2026-02-15",
       gymId: "gym-b",
       discipline: "bouldering",
-      title: "",
+      timeOfDay: "afternoon",
       notes: "",
       entries: [
         {
@@ -69,8 +65,6 @@ const sampleData: ClimbingLog = {
           discipline: "bouldering",
           gradeLabel: "V3",
           gradeRank: 30,
-          result: "attempted",
-          attempts: 5,
           quantity: 2,
           notes: "",
           videoUrl: "",
@@ -82,8 +76,6 @@ const sampleData: ClimbingLog = {
           discipline: "bouldering",
           gradeLabel: "V4",
           gradeRank: 40,
-          result: "sent",
-          attempts: 3,
           quantity: 1,
           notes: "",
           videoUrl: "",
@@ -106,26 +98,12 @@ describe("getDashboardStats", () => {
     expect(stats.totalProblems).toBe(7);
   });
 
-  it("aggregates completed problems by quantity", () => {
-    expect(stats.completedProblems).toBe(5);
-  });
-
-  it("calculates completion rate", () => {
-    expect(stats.completionRate).toBe(71.4);
-  });
-
-  it("finds highest completed grade", () => {
-    expect(stats.highestGradeRank).toBe(50);
-    expect(stats.highestGrade).toBe("V5");
-  });
-
   it("builds monthly trend", () => {
     expect(stats.monthlyTrend).toHaveLength(2);
     const jan = stats.monthlyTrend.find((m) => m.month === "2026-01");
     const feb = stats.monthlyTrend.find((m) => m.month === "2026-02");
     expect(jan?.quantity).toBe(4);
     expect(feb?.quantity).toBe(3);
-    expect(stats.monthlyTrend[0].month).toBe("2026-01");
   });
 
   it("builds gym distribution by quantity", () => {
@@ -153,22 +131,9 @@ describe("filterSessions", () => {
     expect(result[0].id).toBe("2026-01-01-gym-a");
   });
 
-  it("filters by discipline", () => {
-    const result = filterSessions(sampleData, {
-      discipline: "bouldering",
-    });
-    expect(result).toHaveLength(2);
-  });
-
   it("filters by min grade rank", () => {
     const result = filterSessions(sampleData, { minGradeRank: 40 });
     expect(result).toHaveLength(2);
-  });
-
-  it("filters by result", () => {
-    const result = filterSessions(sampleData, { result: "flash" });
-    expect(result).toHaveLength(1);
-    expect(result[0].id).toBe("2026-01-01-gym-a");
   });
 });
 
@@ -196,12 +161,13 @@ describe("grade helpers", () => {
   it("converts grade label to rank", () => {
     expect(gradeLabelToRank("V3")).toBe(30);
     expect(gradeLabelToRank("V0")).toBe(0);
+    expect(gradeLabelToRank("5.10a")).toBe(1000);
     expect(gradeLabelToRank("unknown")).toBe(0);
   });
 
   it("compares grade ranks", () => {
     expect(compareGradeRank(30, 50)).toBeLessThan(0);
-    expect(compareGradeRank(50, 30)).toBeGreaterThan(0);
+    expect(compareGradeRank(1000, 30)).toBeGreaterThan(0);
     expect(compareGradeRank(30, 30)).toBe(0);
   });
 });

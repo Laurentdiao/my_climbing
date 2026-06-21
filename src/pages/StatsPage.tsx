@@ -8,7 +8,6 @@ import {
   MonthlyTrendChart,
   GymDistributionChart,
   GradeDistributionChart,
-  HighestGrade,
 } from "../features/climbing/components/StatsPanel";
 
 export function StatsPage() {
@@ -37,8 +36,6 @@ export function StatsPage() {
       </div>
 
       <StatsSummary stats={stats} />
-
-      <HighestGrade stats={stats} />
 
       <MonthlyTrendChart stats={stats} />
 

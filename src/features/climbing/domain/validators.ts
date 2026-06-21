@@ -16,14 +16,6 @@ const gymSchema = z.object({
 
 const disciplineSchema = z.enum(["bouldering", "lead"]);
 
-const resultSchema = z.enum([
-  "flash",
-  "sent",
-  "repeat",
-  "attempted",
-  "project",
-]);
-
 const videoPlatformSchema = z.enum([
   "xiaohongshu",
   "wechat",
@@ -37,8 +29,6 @@ const entrySchema = z.object({
   discipline: disciplineSchema,
   gradeLabel: z.string().min(1),
   gradeRank: z.number().int(),
-  result: resultSchema,
-  attempts: z.number().int().positive().nullable(),
   quantity: z.number().int().positive(),
   notes: z.string(),
   videoUrl: z.string(),
@@ -51,7 +41,7 @@ const sessionSchema = z.object({
   climbedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "climbedAt must be YYYY-MM-DD"),
   gymId: z.string().min(1),
   discipline: disciplineSchema,
-  title: z.string(),
+  timeOfDay: z.string(),
   notes: z.string(),
   entries: z.array(entrySchema).min(1, "session must have at least one entry"),
 });

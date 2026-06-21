@@ -4,10 +4,6 @@ import { compareGradeRank } from "./grade";
 export interface DashboardStats {
   totalSessions: number;
   totalProblems: number;
-  completedProblems: number;
-  completionRate: number;
-  highestGrade: string | null;
-  highestGradeRank: number | null;
   monthlyTrend: MonthlyBucket[];
   gymDistribution: GymBucket[];
   gradeDistribution: GradeBucket[];
@@ -35,8 +31,6 @@ export function getDashboardStats(data: ClimbingLog): DashboardStats {
   const totalSessions = data.sessions.length;
 
   let totalProblems = 0;
-  let completedProblems = 0;
-  let highestGradeRank: number | null = null;
 
   const monthMap = new Map<string, number>();
   const gymMap = new Map<string, { quantity: number; name: string }>();
@@ -56,16 +50,6 @@ export function getDashboardStats(data: ClimbingLog): DashboardStats {
       totalProblems += entry.quantity;
       sessionQuantity += entry.quantity;
 
-      if (["flash", "sent", "repeat"].includes(entry.result)) {
-        completedProblems += entry.quantity;
-        if (
-          highestGradeRank === null ||
-          entry.gradeRank > highestGradeRank
-        ) {
-          highestGradeRank = entry.gradeRank;
-        }
-      }
-
       const gradeBucket = gradeMap.get(entry.gradeLabel) || {
         quantity: 0,
         rank: entry.gradeRank,
@@ -81,23 +65,6 @@ export function getDashboardStats(data: ClimbingLog): DashboardStats {
       monthKey,
       (monthMap.get(monthKey) || 0) + sessionQuantity,
     );
-  }
-
-  const completionRate =
-    totalProblems > 0
-      ? Math.round((completedProblems / totalProblems) * 1000) / 10
-      : 0;
-
-  let highestGrade: string | null = null;
-  if (highestGradeRank !== null) {
-    const found = data.sessions
-      .flatMap((s) => s.entries)
-      .find(
-        (e) =>
-          e.gradeRank === highestGradeRank &&
-          ["flash", "sent", "repeat"].includes(e.result),
-      );
-    highestGrade = found?.gradeLabel ?? null;
   }
 
   const monthlyTrend: MonthlyBucket[] = Array.from(monthMap.entries())
@@ -130,10 +97,6 @@ export function getDashboardStats(data: ClimbingLog): DashboardStats {
   return {
     totalSessions,
     totalProblems,
-    completedProblems,
-    completionRate,
-    highestGrade,
-    highestGradeRank,
     monthlyTrend,
     gymDistribution,
     gradeDistribution,
@@ -155,7 +118,6 @@ export function filterSessions(
     discipline?: string;
     minGradeRank?: number;
     maxGradeRank?: number;
-    result?: string;
   },
 ): Session[] {
   let sessions = [...data.sessions];
@@ -181,11 +143,6 @@ export function filterSessions(
           return false;
         return true;
       }),
-    );
-  }
-  if (filters.result) {
-    sessions = sessions.filter((s) =>
-      s.entries.some((e) => e.result === filters.result),
     );
   }
 

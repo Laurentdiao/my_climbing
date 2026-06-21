@@ -5,7 +5,7 @@ import type { DashboardStats } from "../features/climbing/domain/stats";
 import { loadClimbingLog } from "../features/climbing/adapters/staticDataRepository";
 import { getDashboardStats } from "../features/climbing/domain/stats";
 import { getGymById } from "../features/climbing/adapters/staticDataRepository";
-import { StatsSummary, HighestGrade } from "../features/climbing/components/StatsPanel";
+import { StatsSummary } from "../features/climbing/components/StatsPanel";
 import { SessionCard } from "../features/climbing/components/SessionCard";
 
 export function HomePage() {
@@ -31,7 +31,6 @@ export function HomePage() {
 
   return (
     <div className="space-y-6 py-4">
-      {/* Profile header */}
       <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-6">
         <h1 className="text-xl font-bold text-stone-100">{profile.displayName}</h1>
         <h2 className="mt-0.5 text-sm text-lime-400">{profile.siteTitle}</h2>
@@ -45,13 +44,8 @@ export function HomePage() {
         )}
       </div>
 
-      {/* Core stats */}
       <StatsSummary stats={stats} />
 
-      {/* Highest grade */}
-      <HighestGrade stats={stats} />
-
-      {/* Recent sessions */}
       <div>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-stone-300">

@@ -2,47 +2,39 @@
   "profile": {
     "displayName": "Climber",
     "siteTitle": "攀岩记录",
-    "bio": "室内抱石爱好者，定期训练中。",
-    "homeGym": "Beta Boulders"
+    "bio": "室内攀岩爱好者，抱石为主。",
+    "homeGym": "岩时攀岩"
   },
   "gyms": [
     {
-      "id": "beta-boulders",
-      "name": "Beta Boulders",
-      "city": "Shanghai",
+      "id": "yanshi",
+      "name": "岩时攀岩",
+      "city": "上海",
       "color": "#84cc16"
     },
     {
-      "id": "rock-on",
-      "name": "Rock On 攀岩",
-      "city": "Shanghai",
+      "id": "dyno",
+      "name": "Dyno Climbing",
+      "city": "上海",
       "color": "#f97316"
-    },
-    {
-      "id": "summit-gym",
-      "name": "Summit 攀岩馆",
-      "city": "Beijing",
-      "color": "#3b82f6"
     }
   ],
   "sessions": [
     {
-      "id": "2026-06-15-beta-boulders",
-      "climbedAt": "2026-06-15",
-      "gymId": "beta-boulders",
+      "id": "2026-06-20-yanshi",
+      "climbedAt": "2026-06-20",
+      "gymId": "yanshi",
       "discipline": "bouldering",
-      "title": "周一晚训练",
-      "notes": "今天状态不错，练了仰角线路。",
+      "timeOfDay": "evening",
+      "notes": "本周换了新线，仰角线路偏多。",
       "entries": [
         {
           "id": "entry-1",
           "discipline": "bouldering",
           "gradeLabel": "V2",
           "gradeRank": 20,
-          "result": "sent",
-          "attempts": 1,
           "quantity": 3,
-          "notes": "热身循环",
+          "notes": "热身",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
@@ -52,10 +44,8 @@
           "discipline": "bouldering",
           "gradeLabel": "V3",
           "gradeRank": 30,
-          "result": "flash",
-          "attempts": 1,
           "quantity": 2,
-          "notes": "斜面墙上的两条新 V3",
+          "notes": "斜面 heel hook 线路",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
@@ -65,23 +55,19 @@
           "discipline": "bouldering",
           "gradeLabel": "V4",
           "gradeRank": 40,
-          "result": "sent",
-          "attempts": 3,
           "quantity": 1,
-          "notes": "45度墙上的指力线路",
-          "videoUrl": "https://www.xiaohongshu.com/explore/example123",
+          "notes": "终于过了这条，磕了很久。指力线。",
+          "videoUrl": "https://www.xiaohongshu.com/explore/example789",
           "videoPlatform": "xiaohongshu",
-          "videoTitle": "V4 指力线完成"
+          "videoTitle": "岩时 V4 指力线"
         },
         {
           "id": "entry-4",
           "discipline": "bouldering",
           "gradeLabel": "V5",
           "gradeRank": 50,
-          "result": "attempted",
-          "attempts": 5,
           "quantity": 1,
-          "notes": "差点过了难点，需要更多身体张力。",
+          "notes": "大动态到 open 点，只做了几个动作",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
@@ -89,20 +75,18 @@
       ]
     },
     {
-      "id": "2026-06-18-rock-on",
+      "id": "2026-06-18-dyno",
       "climbedAt": "2026-06-18",
-      "gymId": "rock-on",
+      "gymId": "dyno",
       "discipline": "bouldering",
-      "title": "新岩馆体验",
-      "notes": "第一次来 Rock On。线路定得不错，难度比 Beta 稍软。",
+      "timeOfDay": "afternoon",
+      "notes": "第一次来 Dyno。定线风格偏动态，很有意思。",
       "entries": [
         {
           "id": "entry-5",
           "discipline": "bouldering",
           "gradeLabel": "V2",
           "gradeRank": 20,
-          "result": "sent",
-          "attempts": 1,
           "quantity": 2,
           "notes": "",
           "videoUrl": "",
@@ -114,36 +98,40 @@
           "discipline": "bouldering",
           "gradeLabel": "V3",
           "gradeRank": 30,
-          "result": "sent",
-          "attempts": 2,
           "quantity": 4,
           "notes": "造型点线路非常有趣",
           "videoUrl": "https://www.xiaohongshu.com/explore/example456",
           "videoPlatform": "xiaohongshu",
-          "videoTitle": "Rock On 四条 V3"
+          "videoTitle": "Dyno 四条 V3"
         },
         {
           "id": "entry-7",
           "discipline": "bouldering",
           "gradeLabel": "V4",
           "gradeRank": 40,
-          "result": "flash",
-          "attempts": 1,
           "quantity": 2,
-          "notes": "两条都 Flash 了！风格很适合我。",
+          "notes": "风格很适合我",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
-        },
+        }
+      ]
+    },
+    {
+      "id": "2026-06-15-yanshi",
+      "climbedAt": "2026-06-15",
+      "gymId": "yanshi",
+      "discipline": "bouldering",
+      "timeOfDay": "evening",
+      "notes": "状态不错，练了仰角线路。",
+      "entries": [
         {
           "id": "entry-8",
           "discipline": "bouldering",
-          "gradeLabel": "V5",
-          "gradeRank": 50,
-          "result": "project",
-          "attempts": null,
-          "quantity": 1,
-          "notes": "长期 Project。Dyno 起步接对抗结束。",
+          "gradeLabel": "V2",
+          "gradeRank": 20,
+          "quantity": 3,
+          "notes": "热身循环",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
@@ -151,87 +139,32 @@
         {
           "id": "entry-9",
           "discipline": "bouldering",
-          "gradeLabel": "V1",
-          "gradeRank": 10,
-          "result": "repeat",
-          "attempts": 1,
+          "gradeLabel": "V3",
+          "gradeRank": 30,
           "quantity": 2,
-          "notes": "放松圈数",
+          "notes": "斜面新线",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
-        }
-      ]
-    },
-    {
-      "id": "2026-06-20-beta-boulders",
-      "climbedAt": "2026-06-20",
-      "gymId": "beta-boulders",
-      "discipline": "bouldering",
-      "title": "周末训练",
-      "notes": "本周换了新线，有很多有趣的线路。",
-      "entries": [
+        },
         {
           "id": "entry-10",
           "discipline": "bouldering",
-          "gradeLabel": "V2",
-          "gradeRank": 20,
-          "result": "sent",
-          "attempts": 1,
-          "quantity": 2,
-          "notes": "",
-          "videoUrl": "",
-          "videoPlatform": "",
-          "videoTitle": ""
+          "gradeLabel": "V4",
+          "gradeRank": 40,
+          "quantity": 1,
+          "notes": "45度墙指力线",
+          "videoUrl": "https://www.xiaohongshu.com/explore/example123",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": "45度墙 V4"
         },
         {
           "id": "entry-11",
           "discipline": "bouldering",
-          "gradeLabel": "V3",
-          "gradeRank": 30,
-          "result": "sent",
-          "attempts": 2,
-          "quantity": 3,
-          "notes": "有一条是 tricky 的斜面加 heel hook",
-          "videoUrl": "",
-          "videoPlatform": "",
-          "videoTitle": ""
-        },
-        {
-          "id": "entry-12",
-          "discipline": "bouldering",
-          "gradeLabel": "V4",
-          "gradeRank": 40,
-          "result": "sent",
-          "attempts": 4,
-          "quantity": 1,
-          "notes": "终于完成这条了！磕了很久。",
-          "videoUrl": "https://www.xiaohongshu.com/explore/example789",
-          "videoPlatform": "xiaohongshu",
-          "videoTitle": "V4 Project 终于完成"
-        },
-        {
-          "id": "entry-13",
-          "discipline": "bouldering",
           "gradeLabel": "V5",
           "gradeRank": 50,
-          "result": "attempted",
-          "attempts": 3,
           "quantity": 1,
-          "notes": "做了几个动作。一个大动态到 open 点。",
-          "videoUrl": "",
-          "videoPlatform": "",
-          "videoTitle": ""
-        },
-        {
-          "id": "entry-14",
-          "discipline": "bouldering",
-          "gradeLabel": "V6",
-          "gradeRank": 60,
-          "result": "project",
-          "attempts": null,
-          "quantity": 1,
-          "notes": "超级 Project。可能是我试过最难的线。",
+          "notes": "差一点过难点，需要更多身体张力",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
@@ -239,20 +172,18 @@
       ]
     },
     {
-      "id": "2026-05-28-beta-boulders",
+      "id": "2026-05-28-yanshi",
       "climbedAt": "2026-05-28",
-      "gymId": "beta-boulders",
+      "gymId": "yanshi",
       "discipline": "bouldering",
-      "title": "五月末训练",
+      "timeOfDay": "afternoon",
       "notes": "扎实的一天。",
       "entries": [
         {
-          "id": "entry-15",
+          "id": "entry-12",
           "discipline": "bouldering",
           "gradeLabel": "V2",
           "gradeRank": 20,
-          "result": "repeat",
-          "attempts": 1,
           "quantity": 4,
           "notes": "热身重复攀爬",
           "videoUrl": "",
@@ -260,12 +191,10 @@
           "videoTitle": ""
         },
         {
-          "id": "entry-16",
+          "id": "entry-13",
           "discipline": "bouldering",
           "gradeLabel": "V3",
           "gradeRank": 30,
-          "result": "sent",
-          "attempts": 2,
           "quantity": 3,
           "notes": "",
           "videoUrl": "",
@@ -273,66 +202,15 @@
           "videoTitle": ""
         },
         {
-          "id": "entry-17",
+          "id": "entry-14",
           "discipline": "bouldering",
           "gradeLabel": "V4",
           "gradeRank": 40,
-          "result": "flash",
-          "attempts": 1,
           "quantity": 1,
-          "notes": "意外 Flash。看起来比实际难。",
+          "notes": "意外 flash，看起来比实际难",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
-        }
-      ]
-    },
-    {
-      "id": "2026-05-15-summit-gym",
-      "climbedAt": "2026-05-15",
-      "gymId": "summit-gym",
-      "discipline": "bouldering",
-      "title": "北京出差 - Summit 攀岩馆",
-      "notes": "出差顺便探馆。Summit 定线不错。",
-      "entries": [
-        {
-          "id": "entry-18",
-          "discipline": "bouldering",
-          "gradeLabel": "V1",
-          "gradeRank": 10,
-          "result": "sent",
-          "attempts": 1,
-          "quantity": 3,
-          "notes": "热身",
-          "videoUrl": "",
-          "videoPlatform": "",
-          "videoTitle": ""
-        },
-        {
-          "id": "entry-19",
-          "discipline": "bouldering",
-          "gradeLabel": "V3",
-          "gradeRank": 30,
-          "result": "sent",
-          "attempts": 1,
-          "quantity": 2,
-          "notes": "",
-          "videoUrl": "",
-          "videoPlatform": "",
-          "videoTitle": ""
-        },
-        {
-          "id": "entry-20",
-          "discipline": "bouldering",
-          "gradeLabel": "V4",
-          "gradeRank": 40,
-          "result": "sent",
-          "attempts": 3,
-          "quantity": 1,
-          "notes": "试了几次终于过了",
-          "videoUrl": "https://www.xiaohongshu.com/explore/example101",
-          "videoPlatform": "xiaohongshu",
-          "videoTitle": "Summit 攀岩馆 V4"
         }
       ]
     }

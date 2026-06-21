@@ -8,30 +8,22 @@ interface SessionCardProps {
   gym?: Gym;
 }
 
-const resultLabels: Record<string, string> = {
-  flash: "FLASH",
-  sent: "SENT",
-  repeat: "REPEAT",
-  attempted: "尝试",
-  project: "PROJECT",
-};
-
-const resultStyles: Record<string, string> = {
-  flash: "bg-cyan-900/50 text-cyan-300 border-cyan-700",
-  sent: "bg-green-900/50 text-green-300 border-green-700",
-  repeat: "bg-blue-900/50 text-blue-300 border-blue-700",
-  attempted: "bg-yellow-900/50 text-yellow-300 border-yellow-700",
-  project: "bg-purple-900/50 text-purple-300 border-purple-700",
+const timeOfDayLabels: Record<string, string> = {
+  morning: "上午",
+  afternoon: "下午",
+  evening: "晚上",
 };
 
 export function SessionCard({ session, gym }: SessionCardProps) {
   const totalProblems = getSessionEntriesTotal(session.entries);
   const date = new Date(session.climbedAt);
-  const dateStr = date.toLocaleDateString("en-US", {
-    month: "short",
+  const dateStr = date.toLocaleDateString("zh-CN", {
+    month: "numeric",
     day: "numeric",
-    year: "numeric",
   });
+  const weekDay = date.toLocaleDateString("zh-CN", { weekday: "short" });
+  const gymName = gym?.name || session.gymId;
+  const timeLabel = timeOfDayLabels[session.timeOfDay] || session.timeOfDay;
 
   return (
     <Link
@@ -40,13 +32,17 @@ export function SessionCard({ session, gym }: SessionCardProps) {
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <h3 className="truncate text-sm font-semibold text-stone-100">
-              {session.title || `Session · ${dateStr}`}
-            </h3>
-          </div>
+          <h3 className="truncate text-sm font-semibold text-stone-100">
+            {gymName}
+          </h3>
           <div className="mt-0.5 flex items-center gap-2 text-xs text-stone-400">
-            <span>{dateStr}</span>
+            <span>{dateStr} {weekDay}</span>
+            {timeLabel && (
+              <>
+                <span className="text-stone-600">·</span>
+                <span>{timeLabel}</span>
+              </>
+            )}
             {gym && (
               <>
                 <span className="text-stone-600">·</span>
@@ -70,12 +66,9 @@ export function SessionCard({ session, gym }: SessionCardProps) {
         {session.entries.slice(0, 6).map((entry) => (
           <span
             key={entry.id}
-            className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-xs ${resultStyles[entry.result] ?? "border-stone-700 bg-stone-800 text-stone-300"}`}
+            className="inline-flex items-center gap-1 rounded-md border border-stone-700 bg-stone-800 px-1.5 py-0.5 text-xs text-stone-300"
           >
             <GradePill gradeLabel={entry.gradeLabel} size="sm" />
-            <span className="opacity-70">
-              {resultLabels[entry.result] ?? entry.result}
-            </span>
             {entry.quantity > 1 && (
               <span className="text-stone-500">×{entry.quantity}</span>
             )}

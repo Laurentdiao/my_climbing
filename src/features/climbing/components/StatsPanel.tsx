@@ -9,7 +9,6 @@ import {
   ResponsiveContainer,
   Cell,
 } from "recharts";
-import { GradePill } from "./GradePill";
 
 interface StatsPanelProps {
   stats: DashboardStats;
@@ -19,8 +18,8 @@ export function StatsSummary({ stats }: StatsPanelProps) {
   const cards = [
     { label: "训练场次", value: stats.totalSessions },
     { label: "线路总数", value: stats.totalProblems },
-    { label: "已完成", value: stats.completedProblems },
-    { label: "完成率", value: `${stats.completionRate}%` },
+    { label: "岩馆数量", value: stats.gymDistribution.length },
+    { label: "难度范围", value: stats.gradeDistribution.length },
   ];
 
   return (
@@ -191,19 +190,6 @@ export function GradeDistributionChart({ stats }: StatsPanelProps) {
           </Bar>
         </BarChart>
       </ResponsiveContainer>
-    </div>
-  );
-}
-
-export function HighestGrade({ stats }: StatsPanelProps) {
-  if (!stats.highestGrade) return null;
-
-  return (
-    <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-4 text-center">
-      <div className="text-xs text-stone-500">最高完成</div>
-      <div className="mt-1">
-        <GradePill gradeLabel={stats.highestGrade} />
-      </div>
     </div>
   );
 }

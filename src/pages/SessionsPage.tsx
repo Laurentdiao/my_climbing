@@ -6,15 +6,6 @@ import { filterSessions } from "../features/climbing/domain/stats";
 import { SessionCard } from "../features/climbing/components/SessionCard";
 import { GymFilter } from "../features/climbing/components/GymFilter";
 
-const RESULT_OPTIONS = [
-  { value: "", label: "全部结果" },
-  { value: "flash", label: "Flash" },
-  { value: "sent", label: "Sent" },
-  { value: "repeat", label: "Repeat" },
-  { value: "attempted", label: "尝试中" },
-  { value: "project", label: "Project" },
-];
-
 const GRADE_OPTIONS = [
   { value: "", label: "全部难度" },
   { value: "0", label: "V0" },
@@ -22,14 +13,12 @@ const GRADE_OPTIONS = [
   { value: "2", label: "V2" },
   { value: "3", label: "V3" },
   { value: "4", label: "V4" },
-  { value: "5", label: "V5" },
-  { value: "6", label: "V6+" },
+  { value: "5", label: "V5+" },
 ];
 
 export function SessionsPage() {
   const [data, setData] = useState<ClimbingLog | null>(null);
   const [gymFilter, setGymFilter] = useState<string | null>(null);
-  const [resultFilter, setResultFilter] = useState("");
   const [gradeFilter, setGradeFilter] = useState("");
 
   useEffect(() => {
@@ -40,20 +29,19 @@ export function SessionsPage() {
     if (!data) return [];
     const filters: Record<string, string | number> = {};
     if (gymFilter) filters.gymId = gymFilter;
-    if (resultFilter) filters.result = resultFilter;
     if (gradeFilter) {
       const rank = parseInt(gradeFilter) * 10;
-      if (gradeFilter === "6") {
-        filters.minGradeRank = 60;
+      if (gradeFilter === "5") {
+        filters.minGradeRank = 50;
       } else {
         filters.minGradeRank = rank;
-        if (rank < 60) {
+        if (rank < 50) {
           filters.maxGradeRank = rank + 9;
         }
       }
     }
     return filterSessions(data, filters as Parameters<typeof filterSessions>[1]);
-  }, [data, gymFilter, resultFilter, gradeFilter]);
+  }, [data, gymFilter, gradeFilter]);
 
   if (!data) {
     return (
@@ -81,35 +69,19 @@ export function SessionsPage() {
         />
       </div>
 
-      <div className="flex gap-3">
-        <div className="flex-1">
-          <p className="mb-1.5 text-xs text-stone-500">结果</p>
-          <select
-            value={resultFilter}
-            onChange={(e) => setResultFilter(e.target.value)}
-            className="w-full rounded-lg border border-stone-700 bg-stone-900 px-3 py-1.5 text-xs text-stone-300 focus:border-lime-400 focus:outline-none"
-          >
-            {RESULT_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex-1">
-          <p className="mb-1.5 text-xs text-stone-500">最低难度</p>
-          <select
-            value={gradeFilter}
-            onChange={(e) => setGradeFilter(e.target.value)}
-            className="w-full rounded-lg border border-stone-700 bg-stone-900 px-3 py-1.5 text-xs text-stone-300 focus:border-lime-400 focus:outline-none"
-          >
-            {GRADE_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div>
+        <p className="mb-1.5 text-xs text-stone-500">最低难度</p>
+        <select
+          value={gradeFilter}
+          onChange={(e) => setGradeFilter(e.target.value)}
+          className="w-full rounded-lg border border-stone-700 bg-stone-900 px-3 py-1.5 text-xs text-stone-300 focus:border-lime-400 focus:outline-none"
+        >
+          {GRADE_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="space-y-3">

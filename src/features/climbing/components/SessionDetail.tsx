@@ -9,31 +9,23 @@ interface SessionDetailProps {
   gym?: Gym;
 }
 
-const resultLabels: Record<string, string> = {
-  flash: "Flash",
-  sent: "Sent",
-  repeat: "Repeat",
-  attempted: "尝试中",
-  project: "Project",
-};
-
-const resultStyles: Record<string, string> = {
-  flash: "border-l-cyan-500 bg-cyan-950/30",
-  sent: "border-l-green-500 bg-green-950/30",
-  repeat: "border-l-blue-500 bg-blue-950/30",
-  attempted: "border-l-yellow-500 bg-yellow-950/30",
-  project: "border-l-purple-500 bg-purple-950/30",
+const timeOfDayLabels: Record<string, string> = {
+  morning: "上午",
+  afternoon: "下午",
+  evening: "晚上",
 };
 
 export function SessionDetail({ session, gym }: SessionDetailProps) {
   const totalProblems = getSessionEntriesTotal(session.entries);
   const date = new Date(session.climbedAt);
-  const dateStr = date.toLocaleDateString("en-US", {
+  const dateStr = date.toLocaleDateString("zh-CN", {
     weekday: "long",
     month: "long",
     day: "numeric",
     year: "numeric",
   });
+  const gymName = gym?.name || session.gymId;
+  const timeLabel = timeOfDayLabels[session.timeOfDay] || session.timeOfDay;
 
   return (
     <div>
@@ -48,12 +40,16 @@ export function SessionDetail({ session, gym }: SessionDetailProps) {
       </Link>
 
       <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-5">
-        <h1 className="text-lg font-bold text-stone-100">
-          {session.title || `Session · ${dateStr}`}
-        </h1>
+        <h1 className="text-lg font-bold text-stone-100">{gymName}</h1>
 
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-stone-400">
           <span>{dateStr}</span>
+          {timeLabel && (
+            <>
+              <span className="text-stone-600">·</span>
+              <span>{timeLabel}</span>
+            </>
+          )}
           {gym && (
             <>
               <span className="text-stone-600">·</span>
@@ -69,7 +65,7 @@ export function SessionDetail({ session, gym }: SessionDetailProps) {
           )}
           <span className="text-stone-600">·</span>
           <span className="uppercase text-xs tracking-wider text-stone-500">
-            {session.discipline}
+            {session.discipline === "bouldering" ? "抱石" : "难度"}
           </span>
           <span className="text-stone-600">·</span>
           <span>{session.entries.length} 组 · {totalProblems} 条线路</span>
@@ -85,18 +81,10 @@ export function SessionDetail({ session, gym }: SessionDetailProps) {
           {session.entries.map((entry) => (
             <div
               key={entry.id}
-              className={`rounded-lg border-l-2 p-3 ${resultStyles[entry.result] ?? "border-l-stone-700 bg-stone-900/40"}`}
+              className="rounded-lg border-l-2 border-l-stone-700 bg-stone-900/40 p-3"
             >
               <div className="flex flex-wrap items-center gap-2">
                 <GradePill gradeLabel={entry.gradeLabel} />
-                <span className="text-xs font-medium text-stone-300">
-                  {resultLabels[entry.result]}
-                </span>
-                {entry.attempts !== null && entry.attempts > 0 && (
-                  <span className="text-xs text-stone-500">
-                    {entry.attempts} 次尝试
-                  </span>
-                )}
                 {entry.quantity > 1 && (
                   <span className="rounded bg-stone-800 px-1.5 py-0.5 text-xs text-stone-400">
                     ×{entry.quantity}

@@ -1,7 +1,5 @@
 export type Discipline = "bouldering" | "lead";
 
-export type Result = "flash" | "sent" | "repeat" | "attempted" | "project";
-
 export type VideoPlatform =
   | "xiaohongshu"
   | "wechat"
@@ -28,8 +26,6 @@ export interface Entry {
   discipline: Discipline;
   gradeLabel: string;
   gradeRank: number;
-  result: Result;
-  attempts: number | null;
   quantity: number;
   notes: string;
   videoUrl: string;
@@ -42,7 +38,7 @@ export interface Session {
   climbedAt: string;
   gymId: string;
   discipline: Discipline;
-  title: string;
+  timeOfDay: string;
   notes: string;
   entries: Entry[];
 }
