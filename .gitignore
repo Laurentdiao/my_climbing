@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+*.local
+.DS_Store
+*.mp4
+*.mov
+*.avi
+*.webm
+*.mkv
+*.heic
+*.heif
+*.log
+*.tsbuildinfo
+vite.config.d.ts
+vite.config.js

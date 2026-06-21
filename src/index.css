@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+@theme {
+  --color-lime-400: #a3e635;
+  --color-lime-500: #84cc16;
+  --color-lime-600: #65a30d;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* Mobile-first: prevent horizontal overflow */
+html {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
