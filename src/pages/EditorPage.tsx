@@ -10,6 +10,8 @@ const LS_CHANGES_KEY = "climbing-local-changes";
 
 interface LocalChanges {
   profile: Profile | null;
+  gyms: Gym[];
+  removedGyms: string[];
   added: Session[];
   edited: Session[];
   deleted: string[];
@@ -18,16 +20,18 @@ interface LocalChanges {
 function loadChanges(): LocalChanges {
   try {
     const raw = localStorage.getItem(LS_CHANGES_KEY);
-    if (!raw) return { profile: null, added: [], edited: [], deleted: [] };
+    if (!raw) return { profile: null, gyms: [], removedGyms: [], added: [], edited: [], deleted: [] };
     const parsed = JSON.parse(raw);
     return {
       profile: parsed.profile || null,
+      gyms: parsed.gyms || [],
+      removedGyms: parsed.removedGyms || [],
       added: parsed.added || [],
       edited: parsed.edited || [],
       deleted: parsed.deleted || [],
     };
   } catch {
-    return { profile: null, added: [], edited: [], deleted: [] };
+    return { profile: null, gyms: [], removedGyms: [], added: [], edited: [], deleted: [] };
   }
 }
 
@@ -102,17 +106,42 @@ export function EditorPage() {
   }, []);
 
   const discardChanges = useCallback(() => {
-    updateChanges({ profile: null, added: [], edited: [], deleted: [] });
+    updateChanges({ profile: null, gyms: [], removedGyms: [], added: [], edited: [], deleted: [] });
     setMessage({ type: "ok", text: "所有本地修改已撤销" });
   }, [updateChanges]);
 
   const changedCount =
     (changes.profile ? 1 : 0) +
+    changes.gyms.length + changes.removedGyms.length +
     changes.added.length + changes.edited.length + changes.deleted.length;
 
   const updateProfile = useCallback(
     (profile: Profile) => {
       updateChanges({ ...changes, profile });
+    },
+    [changes, updateChanges],
+  );
+
+  const addGym = useCallback(
+    (gym: Gym) => {
+      updateChanges({ ...changes, gyms: [...changes.gyms, gym] });
+    },
+    [changes, updateChanges],
+  );
+
+  const removeGym = useCallback(
+    (gymId: string) => {
+      const isNew = changes.gyms.some((g) => g.id === gymId);
+      if (isNew) {
+        updateChanges({ ...changes, gyms: changes.gyms.filter((g) => g.id !== gymId) });
+      } else {
+        updateChanges({
+          ...changes,
+          removedGyms: changes.removedGyms.includes(gymId)
+            ? changes.removedGyms
+            : [...changes.removedGyms, gymId],
+        });
+      }
     },
     [changes, updateChanges],
   );
@@ -136,6 +165,10 @@ export function EditorPage() {
       const merged: ClimbingLog = {
         ...data,
         profile: changes.profile || data.profile,
+        gyms: [
+          ...data.gyms.filter((g) => !changes.removedGyms.includes(g.id)),
+          ...changes.gyms,
+        ],
         sessions: [...changes.added, ...changes.edited, ...baseSessions],
       };
 
@@ -174,7 +207,7 @@ export function EditorPage() {
         throw new Error(err.message || `GitHub API: ${putResp.status}`);
       }
 
-      updateChanges({ profile: null, added: [], edited: [], deleted: [] });
+      updateChanges({ profile: null, gyms: [], removedGyms: [], added: [], edited: [], deleted: [] });
       setMessage({ type: "ok", text: "发布成功！1-2 分钟后刷新公开页面可见。" });
 
       loadClimbingLog().then(setData);
@@ -234,6 +267,14 @@ export function EditorPage() {
         isDirty={!!changes.profile}
       />
 
+      <GymManager
+        gyms={data?.gyms || []}
+        addedGyms={changes.gyms}
+        removedGymIds={changes.removedGyms}
+        onAdd={addGym}
+        onRemove={removeGym}
+      />
+
       <div className="flex items-center gap-2 flex-wrap">
         {editing ? (
           <button
@@ -263,6 +304,8 @@ export function EditorPage() {
           <>
             <span className="text-xs text-stone-500">
               {changes.profile && "~个人信息 "}
+              {changes.gyms.length > 0 && `+${changes.gyms.length}岩馆 `}
+              {changes.removedGyms.length > 0 && `-${changes.removedGyms.length}岩馆 `}
               {changes.added.length > 0 && `+${changes.added.length}新增 `}
               {changes.edited.length > 0 && `~${changes.edited.length}修改 `}
               {changes.deleted.length > 0 && `-${changes.deleted.length}删除 `}
@@ -438,16 +481,17 @@ function SessionEditorForm({
         {isNew ? "新建训练记录" : "编辑训练记录"}
       </h3>
 
+      <div>
+        <label className="block text-xs text-stone-500 mb-1">日期</label>
+        <input
+          type="date"
+          value={climbedAt}
+          onChange={(e) => setClimbedAt(e.target.value)}
+          className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 focus:border-lime-400 focus:outline-none"
+        />
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs text-stone-500 mb-1">日期</label>
-          <input
-            type="date"
-            value={climbedAt}
-            onChange={(e) => setClimbedAt(e.target.value)}
-            className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 focus:border-lime-400 focus:outline-none"
-          />
-        </div>
         <div>
           <label className="block text-xs text-stone-500 mb-1">岩馆</label>
           <select
@@ -460,9 +504,6 @@ function SessionEditorForm({
             ))}
           </select>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-3">
         <div>
           <label className="block text-xs text-stone-500 mb-1">时间段</label>
           <select
@@ -742,6 +783,154 @@ function ProfileEditor({
             className="rounded-lg bg-lime-500 px-4 py-2 text-sm font-semibold text-stone-950 hover:bg-lime-400 transition-colors"
           >
             保存个人信息
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function GymManager({
+  gyms,
+  addedGyms,
+  removedGymIds,
+  onAdd,
+  onRemove,
+}: {
+  gyms: Gym[];
+  addedGyms: Gym[];
+  removedGymIds: string[];
+  onAdd: (gym: Gym) => void;
+  onRemove: (gymId: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [city, setCity] = useState("");
+  const [color, setColor] = useState("#84cc16");
+
+  const COLORS = ["#84cc16", "#f97316", "#3b82f6", "#8b5cf6", "#ec4899", "#14b8a6"];
+
+  function handleAdd() {
+    if (!name.trim()) return;
+    const id = name
+      .toLowerCase()
+      .replace(/[^a-z0-9\u4e00-\u9fff]+/g, "-")
+      .replace(/^-|-$/g, "");
+    onAdd({ id: id + "-" + Date.now().toString(36), name: name.trim(), city: city.trim(), color });
+    setName("");
+    setCity("");
+    setColor("#84cc16");
+  }
+
+  const allGyms = [...gyms, ...addedGyms].filter(
+    (g) => !removedGymIds.includes(g.id),
+  );
+
+  return (
+    <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-semibold text-stone-300">
+          岩馆管理 {(addedGyms.length > 0 || removedGymIds.length > 0) && <span className="text-xs text-amber-400">[已修改]</span>}
+        </p>
+        <button
+          onClick={() => setOpen(!open)}
+          className="text-xs text-lime-400 hover:text-lime-300"
+        >
+          {open ? "收起" : "管理"}
+        </button>
+      </div>
+
+      {!open && (
+        <div className="flex flex-wrap gap-1.5">
+          {allGyms.map((g) => (
+            <span
+              key={g.id}
+              className="inline-flex items-center gap-1 rounded-full border border-stone-700 px-2.5 py-1 text-xs text-stone-300"
+            >
+              <span
+                className="inline-block h-2 w-2 rounded-full"
+                style={{ backgroundColor: g.color }}
+              />
+              {g.name}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {open && (
+        <div className="space-y-3">
+          <div className="space-y-2">
+            {allGyms.map((g) => (
+              <div
+                key={g.id}
+                className="flex items-center justify-between rounded-lg border border-stone-800 bg-stone-950 px-3 py-2"
+              >
+                <span className="flex items-center gap-2 text-xs text-stone-300">
+                  <span
+                    className="inline-block h-2.5 w-2.5 rounded-full"
+                    style={{ backgroundColor: g.color }}
+                  />
+                  {g.name}
+                  {g.city && <span className="text-stone-500">· {g.city}</span>}
+                  {addedGyms.some((a) => a.id === g.id) && (
+                    <span className="text-lime-400">[新增]</span>
+                  )}
+                </span>
+                <button
+                  onClick={() => onRemove(g.id)}
+                  className="text-xs text-stone-500 hover:text-red-400"
+                >
+                  删除
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block text-xs text-stone-500 mb-0.5">岩馆名</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="如 Beta Boulders"
+                className="w-full rounded border border-stone-700 bg-stone-950 px-2 py-1.5 text-xs text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs text-stone-500 mb-0.5">城市</label>
+              <input
+                type="text"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="如 上海"
+                className="w-full rounded border border-stone-700 bg-stone-950 px-2 py-1.5 text-xs text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs text-stone-500 mb-1">颜色</label>
+            <div className="flex gap-1.5">
+              {COLORS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setColor(c)}
+                  className={`h-6 w-6 rounded-full border-2 transition-all ${color === c ? "border-white scale-110" : "border-transparent"}`}
+                  style={{ backgroundColor: c }}
+                />
+              ))}
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleAdd}
+            disabled={!name.trim()}
+            className="rounded-lg bg-lime-500 px-4 py-2 text-sm font-semibold text-stone-950 hover:bg-lime-400 disabled:opacity-50 transition-colors"
+          >
+            添加岩馆
           </button>
         </div>
       )}
