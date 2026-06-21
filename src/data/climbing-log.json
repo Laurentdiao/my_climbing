@@ -21,6 +21,123 @@
   ],
   "sessions": [
     {
+      "id": "2026-06-21-yanshi-mixed",
+      "climbedAt": "2026-06-21",
+      "gymId": "yanshi",
+      "timeOfDay": "afternoon",
+      "notes": "周末长 session，先抱石热身，再爬难度。混搭训练体力分配比较合理。",
+      "entries": [
+        {
+          "id": "entry-mix-1",
+          "discipline": "bouldering",
+          "gradeLabel": "V2",
+          "gradeRank": 20,
+          "quantity": 3,
+          "notes": "热身",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-mix-2",
+          "discipline": "bouldering",
+          "gradeLabel": "V3",
+          "gradeRank": 30,
+          "quantity": 2,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-mix-3",
+          "discipline": "lead",
+          "gradeLabel": "5.9",
+          "gradeRank": 900,
+          "quantity": 2,
+          "notes": "抱石完换难度，耐力还在",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-mix-4",
+          "discipline": "lead",
+          "gradeLabel": "5.10a",
+          "gradeRank": 1000,
+          "quantity": 2,
+          "notes": "",
+          "videoUrl": "https://www.xiaohongshu.com/explore/example555",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": "混搭训练 5.10a"
+        }
+      ]
+    },
+    {
+      "id": "2026-06-13-dyno-mixed",
+      "climbedAt": "2026-06-13",
+      "gymId": "dyno",
+      "timeOfDay": "evening",
+      "notes": "Dyno 周三晚。练了几条抱石 V4，然后上高墙爬了几条 5.10。",
+      "entries": [
+        {
+          "id": "entry-mix-5",
+          "discipline": "bouldering",
+          "gradeLabel": "V3",
+          "gradeRank": 30,
+          "quantity": 2,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-mix-6",
+          "discipline": "bouldering",
+          "gradeLabel": "V4",
+          "gradeRank": 40,
+          "quantity": 2,
+          "notes": "两条都是 new set",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-mix-7",
+          "discipline": "lead",
+          "gradeLabel": "5.10b",
+          "gradeRank": 1010,
+          "quantity": 1,
+          "notes": "前面抱石搞得有点累，这条爬得勉强",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-mix-8",
+          "discipline": "lead",
+          "gradeLabel": "5.10c",
+          "gradeRank": 1020,
+          "quantity": 1,
+          "notes": "最后一条，耐力到极限了",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-mix-9",
+          "discipline": "bouldering",
+          "gradeLabel": "V2",
+          "gradeRank": 20,
+          "quantity": 2,
+          "notes": "cool down",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        }
+      ]
+    },
+    {
       "id": "2026-06-19-yanshi-lead",
       "climbedAt": "2026-06-19",
       "gymId": "yanshi",
