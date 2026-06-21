@@ -1,0 +1,340 @@
+{
+  "profile": {
+    "displayName": "Climber",
+    "siteTitle": "Climbing Log",
+    "bio": "Bouldering enthusiast. Training regularly at indoor gyms.",
+    "homeGym": "Beta Boulders"
+  },
+  "gyms": [
+    {
+      "id": "beta-boulders",
+      "name": "Beta Boulders",
+      "city": "Shanghai",
+      "color": "#84cc16"
+    },
+    {
+      "id": "rock-on",
+      "name": "Rock On Climbing",
+      "city": "Shanghai",
+      "color": "#f97316"
+    },
+    {
+      "id": "summit-gym",
+      "name": "Summit Climbing",
+      "city": "Beijing",
+      "color": "#3b82f6"
+    }
+  ],
+  "sessions": [
+    {
+      "id": "2026-06-15-beta-boulders",
+      "climbedAt": "2026-06-15",
+      "gymId": "beta-boulders",
+      "discipline": "bouldering",
+      "title": "Monday evening session",
+      "notes": "Felt strong today. Worked on overhang problems.",
+      "entries": [
+        {
+          "id": "entry-1",
+          "discipline": "bouldering",
+          "gradeLabel": "V2",
+          "gradeRank": 20,
+          "result": "sent",
+          "attempts": 1,
+          "quantity": 3,
+          "notes": "Warm-up circuit",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-2",
+          "discipline": "bouldering",
+          "gradeLabel": "V3",
+          "gradeRank": 30,
+          "result": "flash",
+          "attempts": 1,
+          "quantity": 2,
+          "notes": "Two new V3s on the slab wall",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-3",
+          "discipline": "bouldering",
+          "gradeLabel": "V4",
+          "gradeRank": 40,
+          "result": "sent",
+          "attempts": 3,
+          "quantity": 1,
+          "notes": "Crimpy problem on the 45° wall",
+          "videoUrl": "https://www.xiaohongshu.com/explore/example123",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": "V4 crimp send"
+        },
+        {
+          "id": "entry-4",
+          "discipline": "bouldering",
+          "gradeLabel": "V5",
+          "gradeRank": 50,
+          "result": "attempted",
+          "attempts": 5,
+          "quantity": 1,
+          "notes": "Almost got the crux move. Need more tension.",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        }
+      ]
+    },
+    {
+      "id": "2026-06-18-rock-on",
+      "climbedAt": "2026-06-18",
+      "gymId": "rock-on",
+      "discipline": "bouldering",
+      "title": "Trying a new gym",
+      "notes": "First time at Rock On. Great setting, softer grades than Beta.",
+      "entries": [
+        {
+          "id": "entry-5",
+          "discipline": "bouldering",
+          "gradeLabel": "V2",
+          "gradeRank": 20,
+          "result": "sent",
+          "attempts": 1,
+          "quantity": 2,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-6",
+          "discipline": "bouldering",
+          "gradeLabel": "V3",
+          "gradeRank": 30,
+          "result": "sent",
+          "attempts": 2,
+          "quantity": 4,
+          "notes": "Volume set was very fun",
+          "videoUrl": "https://www.xiaohongshu.com/explore/example456",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": "4 V3s at Rock On"
+        },
+        {
+          "id": "entry-7",
+          "discipline": "bouldering",
+          "gradeLabel": "V4",
+          "gradeRank": 40,
+          "result": "flash",
+          "attempts": 1,
+          "quantity": 2,
+          "notes": "Flashed both! Style really suits me.",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-8",
+          "discipline": "bouldering",
+          "gradeLabel": "V5",
+          "gradeRank": 50,
+          "result": "project",
+          "attempts": null,
+          "quantity": 1,
+          "notes": "Long-term project. Dyno start to compression finish.",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-9",
+          "discipline": "bouldering",
+          "gradeLabel": "V1",
+          "gradeRank": 10,
+          "result": "repeat",
+          "attempts": 1,
+          "quantity": 2,
+          "notes": "Cool-down laps",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        }
+      ]
+    },
+    {
+      "id": "2026-06-20-beta-boulders",
+      "climbedAt": "2026-06-20",
+      "gymId": "beta-boulders",
+      "discipline": "bouldering",
+      "title": "Weekend session",
+      "notes": "New set this week. Lots of interesting problems.",
+      "entries": [
+        {
+          "id": "entry-10",
+          "discipline": "bouldering",
+          "gradeLabel": "V2",
+          "gradeRank": 20,
+          "result": "sent",
+          "attempts": 1,
+          "quantity": 2,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-11",
+          "discipline": "bouldering",
+          "gradeLabel": "V3",
+          "gradeRank": 30,
+          "result": "sent",
+          "attempts": 2,
+          "quantity": 3,
+          "notes": "One was a tricky slab with heel hook",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-12",
+          "discipline": "bouldering",
+          "gradeLabel": "V4",
+          "gradeRank": 40,
+          "result": "sent",
+          "attempts": 4,
+          "quantity": 1,
+          "notes": "Finally sent this one! Been working on it.",
+          "videoUrl": "https://www.xiaohongshu.com/explore/example789",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": "V4 project finally sent"
+        },
+        {
+          "id": "entry-13",
+          "discipline": "bouldering",
+          "gradeLabel": "V5",
+          "gradeRank": 50,
+          "result": "attempted",
+          "attempts": 3,
+          "quantity": 1,
+          "notes": "Got a few moves in. Big dynamic move to a sloper.",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-14",
+          "discipline": "bouldering",
+          "gradeLabel": "V6",
+          "gradeRank": 60,
+          "result": "project",
+          "attempts": null,
+          "quantity": 1,
+          "notes": "Mega project. Possibly the hardest thing I've tried.",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        }
+      ]
+    },
+    {
+      "id": "2026-05-28-beta-boulders",
+      "climbedAt": "2026-05-28",
+      "gymId": "beta-boulders",
+      "discipline": "bouldering",
+      "title": "Late May session",
+      "notes": "Solid training day.",
+      "entries": [
+        {
+          "id": "entry-15",
+          "discipline": "bouldering",
+          "gradeLabel": "V2",
+          "gradeRank": 20,
+          "result": "repeat",
+          "attempts": 1,
+          "quantity": 4,
+          "notes": "Warm-up repeats",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-16",
+          "discipline": "bouldering",
+          "gradeLabel": "V3",
+          "gradeRank": 30,
+          "result": "sent",
+          "attempts": 2,
+          "quantity": 3,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-17",
+          "discipline": "bouldering",
+          "gradeLabel": "V4",
+          "gradeRank": 40,
+          "result": "flash",
+          "attempts": 1,
+          "quantity": 1,
+          "notes": "Surprise flash. Looked harder than it was.",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        }
+      ]
+    },
+    {
+      "id": "2026-05-15-summit-gym",
+      "climbedAt": "2026-05-15",
+      "gymId": "summit-gym",
+      "discipline": "bouldering",
+      "title": "Beijing trip - Summit Climbing",
+      "notes": "On a work trip. Checked out Summit. Good setting.",
+      "entries": [
+        {
+          "id": "entry-18",
+          "discipline": "bouldering",
+          "gradeLabel": "V1",
+          "gradeRank": 10,
+          "result": "sent",
+          "attempts": 1,
+          "quantity": 3,
+          "notes": "Warm-up",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-19",
+          "discipline": "bouldering",
+          "gradeLabel": "V3",
+          "gradeRank": 30,
+          "result": "sent",
+          "attempts": 1,
+          "quantity": 2,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-20",
+          "discipline": "bouldering",
+          "gradeLabel": "V4",
+          "gradeRank": 40,
+          "result": "sent",
+          "attempts": 3,
+          "quantity": 1,
+          "notes": "Took a few tries but got it",
+          "videoUrl": "https://www.xiaohongshu.com/explore/example101",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": "Summit Climbing V4"
+        }
+      ]
+    }
+  ]
+}
