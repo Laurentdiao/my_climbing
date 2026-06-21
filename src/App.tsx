@@ -3,6 +3,7 @@ import { HomePage } from "./pages/HomePage";
 import { SessionsPage } from "./pages/SessionsPage";
 import { SessionDetailPage } from "./pages/SessionDetailPage";
 import { StatsPage } from "./pages/StatsPage";
+import { EditorPage } from "./pages/EditorPage";
 import { Layout } from "./pages/Layout";
 
 export function App() {
@@ -13,6 +14,7 @@ export function App() {
         <Route path="/sessions" element={<SessionsPage />} />
         <Route path="/sessions/:sessionId" element={<SessionDetailPage />} />
         <Route path="/stats" element={<StatsPage />} />
+        <Route path="/editor" element={<EditorPage />} />
       </Route>
     </Routes>
   );

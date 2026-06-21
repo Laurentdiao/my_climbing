@@ -4,6 +4,7 @@ const links = [
   { to: "/", label: "主页" },
   { to: "/sessions", label: "记录" },
   { to: "/stats", label: "统计" },
+  { to: "/editor", label: "编辑" },
 ];
 
 export function NavBar() {
@@ -13,14 +14,14 @@ export function NavBar() {
         <span className="text-sm font-semibold tracking-wide text-lime-400">
           Climbing Log
         </span>
-        <div className="flex gap-1">
+        <div className="flex gap-0.5 sm:gap-1 overflow-x-auto">
           {links.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
               end={link.to === "/"}
               className={({ isActive }) =>
-                `rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                `rounded-lg px-2 py-1.5 text-xs font-medium transition-colors whitespace-nowrap ${
                   isActive
                     ? "bg-lime-400/15 text-lime-400"
                     : "text-stone-400 hover:text-stone-200"
