@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import type { ClimbingLog, Session, Entry, Gym } from "../features/climbing/domain/types";
+import type { ClimbingLog, Session, Entry, Gym, Profile } from "../features/climbing/domain/types";
 import { loadClimbingLog } from "../features/climbing/adapters/staticDataRepository";
 import { getGymById } from "../features/climbing/adapters/staticDataRepository";
 import { getSessionEntriesTotal } from "../features/climbing/domain/stats";
@@ -9,6 +9,7 @@ const LS_TOKEN_KEY = "climbing-gh-token";
 const LS_CHANGES_KEY = "climbing-local-changes";
 
 interface LocalChanges {
+  profile: Profile | null;
   added: Session[];
   edited: Session[];
   deleted: string[];
@@ -17,10 +18,16 @@ interface LocalChanges {
 function loadChanges(): LocalChanges {
   try {
     const raw = localStorage.getItem(LS_CHANGES_KEY);
-    if (!raw) return { added: [], edited: [], deleted: [] };
-    return JSON.parse(raw);
+    if (!raw) return { profile: null, added: [], edited: [], deleted: [] };
+    const parsed = JSON.parse(raw);
+    return {
+      profile: parsed.profile || null,
+      added: parsed.added || [],
+      edited: parsed.edited || [],
+      deleted: parsed.deleted || [],
+    };
   } catch {
-    return { added: [], edited: [], deleted: [] };
+    return { profile: null, added: [], edited: [], deleted: [] };
   }
 }
 
@@ -95,12 +102,20 @@ export function EditorPage() {
   }, []);
 
   const discardChanges = useCallback(() => {
-    updateChanges({ added: [], edited: [], deleted: [] });
+    updateChanges({ profile: null, added: [], edited: [], deleted: [] });
     setMessage({ type: "ok", text: "所有本地修改已撤销" });
   }, [updateChanges]);
 
   const changedCount =
+    (changes.profile ? 1 : 0) +
     changes.added.length + changes.edited.length + changes.deleted.length;
+
+  const updateProfile = useCallback(
+    (profile: Profile) => {
+      updateChanges({ ...changes, profile });
+    },
+    [changes, updateChanges],
+  );
 
   const publish = useCallback(async () => {
     if (!data) return;
@@ -120,6 +135,7 @@ export function EditorPage() {
 
       const merged: ClimbingLog = {
         ...data,
+        profile: changes.profile || data.profile,
         sessions: [...changes.added, ...changes.edited, ...baseSessions],
       };
 
@@ -158,7 +174,7 @@ export function EditorPage() {
         throw new Error(err.message || `GitHub API: ${putResp.status}`);
       }
 
-      updateChanges({ added: [], edited: [], deleted: [] });
+      updateChanges({ profile: null, added: [], edited: [], deleted: [] });
       setMessage({ type: "ok", text: "发布成功！1-2 分钟后刷新公开页面可见。" });
 
       loadClimbingLog().then(setData);
@@ -212,6 +228,12 @@ export function EditorPage() {
         />
       </div>
 
+      <ProfileEditor
+        profile={changes.profile || data?.profile || null}
+        onSave={updateProfile}
+        isDirty={!!changes.profile}
+      />
+
       <div className="flex items-center gap-2 flex-wrap">
         {editing ? (
           <button
@@ -241,6 +263,7 @@ export function EditorPage() {
         {changedCount > 0 && (
           <>
             <span className="text-xs text-stone-500">
+              {changes.profile && "~个人信息 "}
               {changes.added.length > 0 && `+${changes.added.length}新增 `}
               {changes.edited.length > 0 && `~${changes.edited.length}修改 `}
               {changes.deleted.length > 0 && `-${changes.deleted.length}删除 `}
@@ -636,4 +659,85 @@ function emptyEntry(): Entry {
 function todayStr(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function ProfileEditor({
+  profile,
+  onSave,
+  isDirty,
+}: {
+  profile: Profile | null;
+  onSave: (p: Profile) => void;
+  isDirty: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const [displayName, setDisplayName] = useState(profile?.displayName || "");
+  const [siteTitle, setSiteTitle] = useState(profile?.siteTitle || "");
+  const [bio, setBio] = useState(profile?.bio || "");
+
+  function handleSave() {
+    onSave({
+      displayName: displayName || profile?.displayName || "Climber",
+      siteTitle: siteTitle || profile?.siteTitle || "攀岩记录",
+      bio,
+      homeGym: profile?.homeGym || "",
+    });
+    setOpen(false);
+  }
+
+  return (
+    <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-semibold text-stone-300">
+          个人信息 {isDirty && <span className="text-xs text-amber-400">[已修改]</span>}
+        </p>
+        <button
+          onClick={() => setOpen(!open)}
+          className="text-xs text-lime-400 hover:text-lime-300"
+        >
+          {open ? "收起" : "编辑"}
+        </button>
+      </div>
+      {open && (
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs text-stone-500 mb-1">名字</label>
+            <input
+              type="text"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="你的名字"
+              className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-stone-500 mb-1">网站标题</label>
+            <input
+              type="text"
+              value={siteTitle}
+              onChange={(e) => setSiteTitle(e.target.value)}
+              placeholder="如：攀岩记录"
+              className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="block text-xs text-stone-500 mb-1">自我介绍</label>
+            <textarea
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              rows={2}
+              placeholder="简短介绍..."
+              className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
+            />
+          </div>
+          <button
+            onClick={handleSave}
+            className="rounded-lg bg-lime-500 px-4 py-2 text-sm font-semibold text-stone-950 hover:bg-lime-400 transition-colors"
+          >
+            保存个人信息
+          </button>
+        </div>
+      )}
+    </div>
+  );
 }

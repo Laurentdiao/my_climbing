@@ -37,11 +37,6 @@ export function HomePage() {
         {profile.bio && (
           <p className="mt-3 text-sm text-stone-400 leading-relaxed">{profile.bio}</p>
         )}
-        {profile.homeGym && (
-          <p className="mt-2 text-xs text-stone-500">
-            常去岩馆: {profile.homeGym}
-          </p>
-        )}
       </div>
 
       <StatsSummary stats={stats} />
