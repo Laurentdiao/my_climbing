@@ -13,7 +13,7 @@ const resultLabels: Record<string, string> = {
   flash: "Flash",
   sent: "Sent",
   repeat: "Repeat",
-  attempted: "Attempted",
+  attempted: "尝试中",
   project: "Project",
 };
 
@@ -44,7 +44,7 @@ export function SessionDetail({ session, gym }: SessionDetailProps) {
         <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
-        Back to sessions
+        返回记录列表
       </Link>
 
       <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-5">
@@ -72,7 +72,7 @@ export function SessionDetail({ session, gym }: SessionDetailProps) {
             {session.discipline}
           </span>
           <span className="text-stone-600">·</span>
-          <span>{session.entries.length} lines · {totalProblems} problems</span>
+          <span>{session.entries.length} 组 · {totalProblems} 条线路</span>
         </div>
 
         {session.notes && (
@@ -94,7 +94,7 @@ export function SessionDetail({ session, gym }: SessionDetailProps) {
                 </span>
                 {entry.attempts !== null && entry.attempts > 0 && (
                   <span className="text-xs text-stone-500">
-                    {entry.attempts} attempt{entry.attempts > 1 ? "s" : ""}
+                    {entry.attempts} 次尝试
                   </span>
                 )}
                 {entry.quantity > 1 && (
@@ -117,7 +117,7 @@ export function SessionDetail({ session, gym }: SessionDetailProps) {
                   />
                   {entry.quantity > 1 && (
                     <span className="ml-2 text-xs text-stone-600">
-                      (related video, not per-problem)
+                      (相关视频，非逐条线路视频)
                     </span>
                   )}
                 </div>

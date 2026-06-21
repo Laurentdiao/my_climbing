@@ -12,7 +12,7 @@ const resultLabels: Record<string, string> = {
   flash: "FLASH",
   sent: "SENT",
   repeat: "REPEAT",
-  attempted: "ATTEMPT",
+  attempted: "尝试",
   project: "PROJECT",
 };
 
@@ -62,7 +62,7 @@ export function SessionCard({ session, gym }: SessionCardProps) {
           </div>
         </div>
         <span className="shrink-0 rounded-lg bg-stone-800 px-2 py-1 text-xs font-medium text-stone-300">
-          {totalProblems} probs
+          {totalProblems} 条线
         </span>
       </div>
 
@@ -83,7 +83,7 @@ export function SessionCard({ session, gym }: SessionCardProps) {
         ))}
         {session.entries.length > 6 && (
           <span className="text-xs text-stone-500">
-            +{session.entries.length - 6} more
+            +{session.entries.length - 6} 更多
           </span>
         )}
       </div>

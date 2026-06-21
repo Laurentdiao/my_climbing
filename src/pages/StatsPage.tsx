@@ -33,7 +33,7 @@ export function StatsPage() {
   return (
     <div className="space-y-6 py-4">
       <div>
-        <h1 className="text-lg font-bold text-stone-100">Statistics</h1>
+        <h1 className="text-lg font-bold text-stone-100">数据统计</h1>
       </div>
 
       <StatsSummary stats={stats} />

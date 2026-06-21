@@ -1,9 +1,9 @@
 import { NavLink } from "react-router-dom";
 
 const links = [
-  { to: "/", label: "Home" },
-  { to: "/sessions", label: "Sessions" },
-  { to: "/stats", label: "Stats" },
+  { to: "/", label: "主页" },
+  { to: "/sessions", label: "记录" },
+  { to: "/stats", label: "统计" },
 ];
 
 export function NavBar() {

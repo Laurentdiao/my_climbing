@@ -27,7 +27,7 @@ export function SessionDetailPage() {
   if (!session) {
     return (
       <div className="py-20 text-center">
-        <p className="text-stone-400">Session not found.</p>
+          <p className="text-stone-400">未找到该场训练记录。</p>
       </div>
     );
   }

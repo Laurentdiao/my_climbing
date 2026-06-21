@@ -1,8 +1,8 @@
 {
   "profile": {
     "displayName": "Climber",
-    "siteTitle": "Climbing Log",
-    "bio": "Bouldering enthusiast. Training regularly at indoor gyms.",
+    "siteTitle": "攀岩记录",
+    "bio": "室内抱石爱好者，定期训练中。",
     "homeGym": "Beta Boulders"
   },
   "gyms": [
@@ -14,13 +14,13 @@
     },
     {
       "id": "rock-on",
-      "name": "Rock On Climbing",
+      "name": "Rock On 攀岩",
       "city": "Shanghai",
       "color": "#f97316"
     },
     {
       "id": "summit-gym",
-      "name": "Summit Climbing",
+      "name": "Summit 攀岩馆",
       "city": "Beijing",
       "color": "#3b82f6"
     }
@@ -31,8 +31,8 @@
       "climbedAt": "2026-06-15",
       "gymId": "beta-boulders",
       "discipline": "bouldering",
-      "title": "Monday evening session",
-      "notes": "Felt strong today. Worked on overhang problems.",
+      "title": "周一晚训练",
+      "notes": "今天状态不错，练了仰角线路。",
       "entries": [
         {
           "id": "entry-1",
@@ -42,7 +42,7 @@
           "result": "sent",
           "attempts": 1,
           "quantity": 3,
-          "notes": "Warm-up circuit",
+          "notes": "热身循环",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
@@ -55,7 +55,7 @@
           "result": "flash",
           "attempts": 1,
           "quantity": 2,
-          "notes": "Two new V3s on the slab wall",
+          "notes": "斜面墙上的两条新 V3",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
@@ -68,10 +68,10 @@
           "result": "sent",
           "attempts": 3,
           "quantity": 1,
-          "notes": "Crimpy problem on the 45° wall",
+          "notes": "45度墙上的指力线路",
           "videoUrl": "https://www.xiaohongshu.com/explore/example123",
           "videoPlatform": "xiaohongshu",
-          "videoTitle": "V4 crimp send"
+          "videoTitle": "V4 指力线完成"
         },
         {
           "id": "entry-4",
@@ -81,7 +81,7 @@
           "result": "attempted",
           "attempts": 5,
           "quantity": 1,
-          "notes": "Almost got the crux move. Need more tension.",
+          "notes": "差点过了难点，需要更多身体张力。",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
@@ -93,8 +93,8 @@
       "climbedAt": "2026-06-18",
       "gymId": "rock-on",
       "discipline": "bouldering",
-      "title": "Trying a new gym",
-      "notes": "First time at Rock On. Great setting, softer grades than Beta.",
+      "title": "新岩馆体验",
+      "notes": "第一次来 Rock On。线路定得不错，难度比 Beta 稍软。",
       "entries": [
         {
           "id": "entry-5",
@@ -117,10 +117,10 @@
           "result": "sent",
           "attempts": 2,
           "quantity": 4,
-          "notes": "Volume set was very fun",
+          "notes": "造型点线路非常有趣",
           "videoUrl": "https://www.xiaohongshu.com/explore/example456",
           "videoPlatform": "xiaohongshu",
-          "videoTitle": "4 V3s at Rock On"
+          "videoTitle": "Rock On 四条 V3"
         },
         {
           "id": "entry-7",
@@ -130,7 +130,7 @@
           "result": "flash",
           "attempts": 1,
           "quantity": 2,
-          "notes": "Flashed both! Style really suits me.",
+          "notes": "两条都 Flash 了！风格很适合我。",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
@@ -143,7 +143,7 @@
           "result": "project",
           "attempts": null,
           "quantity": 1,
-          "notes": "Long-term project. Dyno start to compression finish.",
+          "notes": "长期 Project。Dyno 起步接对抗结束。",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
@@ -156,7 +156,7 @@
           "result": "repeat",
           "attempts": 1,
           "quantity": 2,
-          "notes": "Cool-down laps",
+          "notes": "放松圈数",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
@@ -168,8 +168,8 @@
       "climbedAt": "2026-06-20",
       "gymId": "beta-boulders",
       "discipline": "bouldering",
-      "title": "Weekend session",
-      "notes": "New set this week. Lots of interesting problems.",
+      "title": "周末训练",
+      "notes": "本周换了新线，有很多有趣的线路。",
       "entries": [
         {
           "id": "entry-10",
@@ -192,7 +192,7 @@
           "result": "sent",
           "attempts": 2,
           "quantity": 3,
-          "notes": "One was a tricky slab with heel hook",
+          "notes": "有一条是 tricky 的斜面加 heel hook",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
@@ -205,10 +205,10 @@
           "result": "sent",
           "attempts": 4,
           "quantity": 1,
-          "notes": "Finally sent this one! Been working on it.",
+          "notes": "终于完成这条了！磕了很久。",
           "videoUrl": "https://www.xiaohongshu.com/explore/example789",
           "videoPlatform": "xiaohongshu",
-          "videoTitle": "V4 project finally sent"
+          "videoTitle": "V4 Project 终于完成"
         },
         {
           "id": "entry-13",
@@ -218,7 +218,7 @@
           "result": "attempted",
           "attempts": 3,
           "quantity": 1,
-          "notes": "Got a few moves in. Big dynamic move to a sloper.",
+          "notes": "做了几个动作。一个大动态到 open 点。",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
@@ -231,7 +231,7 @@
           "result": "project",
           "attempts": null,
           "quantity": 1,
-          "notes": "Mega project. Possibly the hardest thing I've tried.",
+          "notes": "超级 Project。可能是我试过最难的线。",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
@@ -243,8 +243,8 @@
       "climbedAt": "2026-05-28",
       "gymId": "beta-boulders",
       "discipline": "bouldering",
-      "title": "Late May session",
-      "notes": "Solid training day.",
+      "title": "五月末训练",
+      "notes": "扎实的一天。",
       "entries": [
         {
           "id": "entry-15",
@@ -254,7 +254,7 @@
           "result": "repeat",
           "attempts": 1,
           "quantity": 4,
-          "notes": "Warm-up repeats",
+          "notes": "热身重复攀爬",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
@@ -280,7 +280,7 @@
           "result": "flash",
           "attempts": 1,
           "quantity": 1,
-          "notes": "Surprise flash. Looked harder than it was.",
+          "notes": "意外 Flash。看起来比实际难。",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
@@ -292,8 +292,8 @@
       "climbedAt": "2026-05-15",
       "gymId": "summit-gym",
       "discipline": "bouldering",
-      "title": "Beijing trip - Summit Climbing",
-      "notes": "On a work trip. Checked out Summit. Good setting.",
+      "title": "北京出差 - Summit 攀岩馆",
+      "notes": "出差顺便探馆。Summit 定线不错。",
       "entries": [
         {
           "id": "entry-18",
@@ -303,7 +303,7 @@
           "result": "sent",
           "attempts": 1,
           "quantity": 3,
-          "notes": "Warm-up",
+          "notes": "热身",
           "videoUrl": "",
           "videoPlatform": "",
           "videoTitle": ""
@@ -329,10 +329,10 @@
           "result": "sent",
           "attempts": 3,
           "quantity": 1,
-          "notes": "Took a few tries but got it",
+          "notes": "试了几次终于过了",
           "videoUrl": "https://www.xiaohongshu.com/explore/example101",
           "videoPlatform": "xiaohongshu",
-          "videoTitle": "Summit Climbing V4"
+          "videoTitle": "Summit 攀岩馆 V4"
         }
       ]
     }

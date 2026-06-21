@@ -17,10 +17,10 @@ interface StatsPanelProps {
 
 export function StatsSummary({ stats }: StatsPanelProps) {
   const cards = [
-    { label: "Sessions", value: stats.totalSessions },
-    { label: "Problems", value: stats.totalProblems },
-    { label: "Completed", value: stats.completedProblems },
-    { label: "Rate", value: `${stats.completionRate}%` },
+    { label: "训练场次", value: stats.totalSessions },
+    { label: "线路总数", value: stats.totalProblems },
+    { label: "已完成", value: stats.completedProblems },
+    { label: "完成率", value: `${stats.completionRate}%` },
   ];
 
   return (
@@ -49,7 +49,7 @@ export function MonthlyTrendChart({ stats }: StatsPanelProps) {
   return (
     <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-4">
       <h3 className="mb-3 text-sm font-semibold text-stone-300">
-        Monthly Trend
+        月度趋势
       </h3>
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={data} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
@@ -99,7 +99,7 @@ export function GymDistributionChart({ stats }: StatsPanelProps) {
   return (
     <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-4">
       <h3 className="mb-3 text-sm font-semibold text-stone-300">
-        By Gym
+        岩馆分布
       </h3>
       <ResponsiveContainer width="100%" height={180}>
         <BarChart
@@ -152,7 +152,7 @@ export function GradeDistributionChart({ stats }: StatsPanelProps) {
   return (
     <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-4">
       <h3 className="mb-3 text-sm font-semibold text-stone-300">
-        By Grade
+        难度分布
       </h3>
       <ResponsiveContainer width="100%" height={200}>
         <BarChart
@@ -200,7 +200,7 @@ export function HighestGrade({ stats }: StatsPanelProps) {
 
   return (
     <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-4 text-center">
-      <div className="text-xs text-stone-500">Highest Send</div>
+      <div className="text-xs text-stone-500">最高完成</div>
       <div className="mt-1">
         <GradePill gradeLabel={stats.highestGrade} />
       </div>

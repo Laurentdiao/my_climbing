@@ -7,16 +7,16 @@ import { SessionCard } from "../features/climbing/components/SessionCard";
 import { GymFilter } from "../features/climbing/components/GymFilter";
 
 const RESULT_OPTIONS = [
-  { value: "", label: "All Results" },
+  { value: "", label: "全部结果" },
   { value: "flash", label: "Flash" },
   { value: "sent", label: "Sent" },
   { value: "repeat", label: "Repeat" },
-  { value: "attempted", label: "Attempted" },
+  { value: "attempted", label: "尝试中" },
   { value: "project", label: "Project" },
 ];
 
 const GRADE_OPTIONS = [
-  { value: "", label: "All Grades" },
+  { value: "", label: "全部难度" },
   { value: "0", label: "V0" },
   { value: "1", label: "V1" },
   { value: "2", label: "V2" },
@@ -66,14 +66,14 @@ export function SessionsPage() {
   return (
     <div className="space-y-5 py-4">
       <div>
-        <h1 className="text-lg font-bold text-stone-100">Sessions</h1>
+        <h1 className="text-lg font-bold text-stone-100">训练记录</h1>
         <p className="mt-0.5 text-xs text-stone-500">
-          {filteredSessions.length} session{filteredSessions.length !== 1 ? "s" : ""} shown
+          显示 {filteredSessions.length} 场训练
         </p>
       </div>
 
       <div>
-        <p className="mb-1.5 text-xs text-stone-500">Gym</p>
+        <p className="mb-1.5 text-xs text-stone-500">岩馆</p>
         <GymFilter
           gyms={data.gyms}
           activeGymId={gymFilter}
@@ -83,7 +83,7 @@ export function SessionsPage() {
 
       <div className="flex gap-3">
         <div className="flex-1">
-          <p className="mb-1.5 text-xs text-stone-500">Result</p>
+          <p className="mb-1.5 text-xs text-stone-500">结果</p>
           <select
             value={resultFilter}
             onChange={(e) => setResultFilter(e.target.value)}
@@ -97,7 +97,7 @@ export function SessionsPage() {
           </select>
         </div>
         <div className="flex-1">
-          <p className="mb-1.5 text-xs text-stone-500">Min Grade</p>
+          <p className="mb-1.5 text-xs text-stone-500">最低难度</p>
           <select
             value={gradeFilter}
             onChange={(e) => setGradeFilter(e.target.value)}
@@ -115,7 +115,7 @@ export function SessionsPage() {
       <div className="space-y-3">
         {filteredSessions.length === 0 && (
           <p className="py-8 text-center text-sm text-stone-500">
-            No sessions match the filters.
+            没有符合条件的训练记录。
           </p>
         )}
         {filteredSessions.map((session) => (

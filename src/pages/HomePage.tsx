@@ -40,7 +40,7 @@ export function HomePage() {
         )}
         {profile.homeGym && (
           <p className="mt-2 text-xs text-stone-500">
-            Home gym: {profile.homeGym}
+            常去岩馆: {profile.homeGym}
           </p>
         )}
       </div>
@@ -55,13 +55,13 @@ export function HomePage() {
       <div>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-stone-300">
-            Recent Sessions
+            最近训练
           </h3>
           <Link
             to="/sessions"
             className="text-xs text-lime-400 hover:text-lime-300 transition-colors"
           >
-            View all →
+            全部记录 →
           </Link>
         </div>
         <div className="space-y-3">
