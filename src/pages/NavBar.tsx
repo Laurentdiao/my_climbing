@@ -11,9 +11,12 @@ export function NavBar() {
   return (
     <nav className="sticky top-0 z-50 border-b border-stone-800 bg-stone-950/80 backdrop-blur sm:static">
       <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-3">
-        <span className="text-sm font-semibold tracking-wide text-lime-400">
+        <button
+          onClick={() => window.location.reload()}
+          className="text-sm font-semibold tracking-wide text-lime-400 hover:text-lime-300 transition-colors"
+        >
           Climbing Log
-        </span>
+        </button>
         <div className="flex gap-0.5 sm:gap-1 overflow-x-auto">
           {links.map((link) => (
             <NavLink
