@@ -40,10 +40,14 @@ export function StatsSummary({ stats }: StatsPanelProps) {
 export function MonthlyTrendChart({ stats }: StatsPanelProps) {
   if (stats.monthlyTrend.length === 0) return null;
 
-  const data = stats.monthlyTrend.map((m) => ({
-    month: m.month.substring(5),
-    quantity: m.quantity,
-  }));
+  const years = new Set(stats.monthlyTrend.map((x) => x.month.substring(0, 4)));
+  const data = stats.monthlyTrend.map((m) => {
+    const [year, month] = m.month.split("-");
+    return {
+      month: years.size > 1 ? `${year}-${month}` : `${parseInt(month)}月`,
+      quantity: m.quantity,
+    };
+  });
 
   return (
     <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-4">

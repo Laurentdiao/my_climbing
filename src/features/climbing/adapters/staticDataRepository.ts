@@ -1,15 +1,10 @@
 import type { ClimbingLog, Gym } from "../domain/types";
 
-let cachedData: ClimbingLog | null = null;
-
 export async function loadClimbingLog(): Promise<ClimbingLog> {
-  if (cachedData) return cachedData;
-
   const data = (await import("../../../data/climbing-log.json")) as {
     default: ClimbingLog;
   };
-  cachedData = data.default;
-  return cachedData;
+  return data.default;
 }
 
 export function getGymById(data: ClimbingLog, gymId: string): Gym | undefined {
