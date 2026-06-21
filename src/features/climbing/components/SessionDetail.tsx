@@ -1,7 +1,7 @@
 import type { Session, Gym } from "../domain/types";
 import { GradePill } from "./GradePill";
 import { VideoLink } from "./VideoLink";
-import { getSessionEntriesTotal } from "../domain/stats";
+import { getSessionEntriesTotal, getSessionDisciplines } from "../domain/stats";
 import { Link } from "react-router-dom";
 
 interface SessionDetailProps {
@@ -26,6 +26,7 @@ export function SessionDetail({ session, gym }: SessionDetailProps) {
   });
   const gymName = gym?.name || session.gymId;
   const timeLabel = timeOfDayLabels[session.timeOfDay] || session.timeOfDay;
+  const disciplineLabel = getSessionDisciplines(session.entries);
 
   return (
     <div>
@@ -64,9 +65,7 @@ export function SessionDetail({ session, gym }: SessionDetailProps) {
             </>
           )}
           <span className="text-stone-600">·</span>
-          <span className="uppercase text-xs tracking-wider text-stone-500">
-            {session.discipline === "bouldering" ? "抱石" : "难度"}
-          </span>
+          <span className="text-xs text-stone-500">{disciplineLabel}</span>
           <span className="text-stone-600">·</span>
           <span>{session.entries.length} 组 · {totalProblems} 条线路</span>
         </div>

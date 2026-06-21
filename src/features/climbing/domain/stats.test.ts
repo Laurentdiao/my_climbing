@@ -24,7 +24,6 @@ const sampleData: ClimbingLog = {
       id: "2026-01-01-gym-a",
       climbedAt: "2026-01-01",
       gymId: "gym-a",
-      discipline: "bouldering",
       timeOfDay: "evening",
       notes: "",
       entries: [
@@ -56,7 +55,6 @@ const sampleData: ClimbingLog = {
       id: "2026-02-15-gym-b",
       climbedAt: "2026-02-15",
       gymId: "gym-b",
-      discipline: "bouldering",
       timeOfDay: "afternoon",
       notes: "",
       entries: [

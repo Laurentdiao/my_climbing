@@ -249,7 +249,6 @@ export function EditorPage() {
                 id: `new-${Date.now()}`,
                 climbedAt: todayStr(),
                 gymId: data?.gyms[0]?.id || "",
-                discipline: "bouldering",
                 timeOfDay: "evening",
                 notes: "",
                 entries: [],
@@ -396,7 +395,6 @@ function SessionEditorForm({
   const [gymId, setGymId] = useState(initial?.gymId || gyms[0]?.id || "");
   const [climbedAt, setClimbedAt] = useState(initial?.climbedAt || todayStr());
   const [timeOfDay, setTimeOfDay] = useState(initial?.timeOfDay || "evening");
-  const [discipline, setDiscipline] = useState<"bouldering" | "lead">(initial?.discipline as "bouldering" | "lead" || "bouldering");
   const [notes, setNotes] = useState(initial?.notes || "");
   const [entries, setEntries] = useState<Entry[]>(
     initial?.entries?.length ? initial.entries : [emptyEntry()],
@@ -427,17 +425,12 @@ function SessionEditorForm({
       id,
       climbedAt,
       gymId,
-      discipline: discipline as "bouldering" | "lead",
       timeOfDay,
       notes,
       entries,
     };
     onSave(session, isNew);
   }
-
-  const gradeOptions = discipline === "bouldering"
-    ? ALL_GRADES.filter((g) => g.label.startsWith("V"))
-    : ALL_GRADES.filter((g) => g.label.startsWith("5."));
 
   return (
     <form onSubmit={handleSubmit} className="rounded-xl border border-lime-800 bg-stone-900/60 p-4 space-y-4">
@@ -469,7 +462,7 @@ function SessionEditorForm({
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3">
         <div>
           <label className="block text-xs text-stone-500 mb-1">时间段</label>
           <select
@@ -480,17 +473,6 @@ function SessionEditorForm({
             <option value="morning">上午</option>
             <option value="afternoon">下午</option>
             <option value="evening">晚上</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs text-stone-500 mb-1">项目</label>
-          <select
-            value={discipline}
-            onChange={(e) => setDiscipline(e.target.value as "bouldering" | "lead")}
-            className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 focus:border-lime-400 focus:outline-none"
-          >
-            <option value="bouldering">抱石</option>
-            <option value="lead">难度</option>
           </select>
         </div>
       </div>
@@ -534,6 +516,26 @@ function SessionEditorForm({
                 )}
               </div>
 
+              <div className="mb-2">
+                <select
+                  value={entry.discipline}
+                  onChange={(e) => {
+                    const d = e.target.value as "bouldering" | "lead";
+                    updateEntry(i, "discipline", d);
+                    const defaults: Record<string, { label: string; rank: number }> = {
+                      bouldering: { label: "V3", rank: 30 },
+                      lead: { label: "5.9", rank: 900 },
+                    };
+                    updateEntry(i, "gradeLabel", defaults[d].label);
+                    updateEntry(i, "gradeRank", defaults[d].rank);
+                  }}
+                  className="w-full rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 focus:border-lime-400 focus:outline-none"
+                >
+                  <option value="bouldering">抱石</option>
+                  <option value="lead">难度</option>
+                </select>
+              </div>
+
               <div className="flex items-center gap-2 mb-1">
                 <button
                   type="button"
@@ -562,9 +564,14 @@ function SessionEditorForm({
                   }}
                   className="w-full rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 focus:border-lime-400 focus:outline-none"
                 >
-                  {gradeOptions.map((g) => (
-                    <option key={g.label} value={g.label}>{g.label}</option>
-                  ))}
+                  {(() => {
+                    const gradeOptions = entry.discipline === "bouldering"
+                      ? ALL_GRADES.filter((g) => g.label.startsWith("V"))
+                      : ALL_GRADES.filter((g) => g.label.startsWith("5."));
+                    return gradeOptions.map((g) => (
+                      <option key={g.label} value={g.label}>{g.label}</option>
+                    ));
+                  })()}
                 </select>
               ) : (
                 <div className="flex gap-2">

@@ -37,7 +37,6 @@ export interface Session {
   id: string;
   climbedAt: string;
   gymId: string;
-  discipline: Discipline;
   timeOfDay: string;
   notes: string;
   entries: Entry[];

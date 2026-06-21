@@ -24,7 +24,6 @@
       "id": "2026-06-19-yanshi-lead",
       "climbedAt": "2026-06-19",
       "gymId": "yanshi",
-      "discipline": "lead",
       "timeOfDay": "evening",
       "notes": "第一次尝试难度线路，先热身再上 5.10。",
       "entries": [
@@ -78,7 +77,6 @@
       "id": "2026-05-20-yanshi-lead",
       "climbedAt": "2026-05-20",
       "gymId": "yanshi",
-      "discipline": "lead",
       "timeOfDay": "afternoon",
       "notes": "周末去爬难度，主要是 5.9 和 5.10a。",
       "entries": [
@@ -121,7 +119,6 @@
       "id": "2026-06-18-dyno",
       "climbedAt": "2026-06-18",
       "gymId": "dyno",
-      "discipline": "bouldering",
       "timeOfDay": "afternoon",
       "notes": "第一次来 Dyno。定线风格偏动态，很有意思。",
       "entries": [
@@ -164,7 +161,6 @@
       "id": "2026-06-15-yanshi",
       "climbedAt": "2026-06-15",
       "gymId": "yanshi",
-      "discipline": "bouldering",
       "timeOfDay": "evening",
       "notes": "状态不错，练了仰角线路。",
       "entries": [
@@ -218,7 +214,6 @@
       "id": "2026-05-28-yanshi",
       "climbedAt": "2026-05-28",
       "gymId": "yanshi",
-      "discipline": "bouldering",
       "timeOfDay": "afternoon",
       "notes": "扎实的一天。",
       "entries": [

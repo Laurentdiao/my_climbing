@@ -126,7 +126,9 @@ export function filterSessions(
     sessions = sessions.filter((s) => s.gymId === filters.gymId);
   }
   if (filters.discipline) {
-    sessions = sessions.filter((s) => s.discipline === filters.discipline);
+    sessions = sessions.filter((s) =>
+      s.entries.some((e) => e.discipline === filters.discipline),
+    );
   }
   if (filters.minGradeRank !== undefined || filters.maxGradeRank !== undefined) {
     sessions = sessions.filter((s) =>
@@ -156,4 +158,13 @@ export function filterSessions(
 
 export function getSessionEntriesTotal(entries: Entry[]): number {
   return entries.reduce((sum, e) => sum + e.quantity, 0);
+}
+
+export function getSessionDisciplines(
+  entries: Entry[],
+): string {
+  const set = new Set(entries.map((e) => e.discipline));
+  return Array.from(set)
+    .map((d) => (d === "bouldering" ? "抱石" : "难度"))
+    .join(" + ");
 }

@@ -40,7 +40,6 @@ const sessionSchema = z.object({
   id: z.string().min(1),
   climbedAt: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "climbedAt must be YYYY-MM-DD"),
   gymId: z.string().min(1),
-  discipline: disciplineSchema,
   timeOfDay: z.string(),
   notes: z.string(),
   entries: z.array(entrySchema).min(1, "session must have at least one entry"),
