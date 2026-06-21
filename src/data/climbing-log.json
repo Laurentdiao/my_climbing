@@ -1,8 +1,8 @@
 {
   "profile": {
-    "displayName": "Wiao",
+    "displayName": "Climber",
     "siteTitle": "攀岩记录",
-    "bio": "A beginner…",
+    "bio": "室内攀岩爱好者，抱石为主。",
     "homeGym": "岩时攀岩"
   },
   "gyms": [
@@ -20,60 +20,6 @@
     }
   ],
   "sessions": [
-    {
-      "id": "2026-06-20-yanshi",
-      "climbedAt": "2026-06-20",
-      "gymId": "yanshi",
-      "discipline": "bouldering",
-      "timeOfDay": "evening",
-      "notes": "本周换了新线，仰角线路偏多。",
-      "entries": [
-        {
-          "id": "entry-1",
-          "discipline": "bouldering",
-          "gradeLabel": "V2",
-          "gradeRank": 20,
-          "quantity": 3,
-          "notes": "热身",
-          "videoUrl": "",
-          "videoPlatform": "",
-          "videoTitle": ""
-        },
-        {
-          "id": "entry-2",
-          "discipline": "bouldering",
-          "gradeLabel": "V3",
-          "gradeRank": 30,
-          "quantity": 2,
-          "notes": "斜面 heel hook 线路",
-          "videoUrl": "",
-          "videoPlatform": "",
-          "videoTitle": ""
-        },
-        {
-          "id": "entry-3",
-          "discipline": "bouldering",
-          "gradeLabel": "V4",
-          "gradeRank": 40,
-          "quantity": 1,
-          "notes": "终于过了这条，磕了很久。指力线。",
-          "videoUrl": "https://www.xiaohongshu.com/explore/example789",
-          "videoPlatform": "xiaohongshu",
-          "videoTitle": "岩时 V4 指力线"
-        },
-        {
-          "id": "entry-4",
-          "discipline": "bouldering",
-          "gradeLabel": "V5",
-          "gradeRank": 50,
-          "quantity": 1,
-          "notes": "大动态到 open 点，只做了几个动作",
-          "videoUrl": "",
-          "videoPlatform": "",
-          "videoTitle": ""
-        }
-      ]
-    },
     {
       "id": "2026-06-18-dyno",
       "climbedAt": "2026-06-18",
