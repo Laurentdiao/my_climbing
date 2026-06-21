@@ -4,8 +4,8 @@ import { loadClimbingLog } from "../features/climbing/adapters/staticDataReposit
 import { getGymById } from "../features/climbing/adapters/staticDataRepository";
 import { getSessionEntriesTotal } from "../features/climbing/domain/stats";
 import { ALL_GRADES } from "../features/climbing/domain/grade";
+import { climbingLogSchema } from "../features/climbing/domain/validators";
 
-const LS_TOKEN_KEY = "climbing-gh-token";
 const LS_CHANGES_KEY = "climbing-local-changes";
 const GH_REPO = "Laurentdiao/my_climbing";
 const GH_FILE = "src/data/climbing-log.json";
@@ -13,7 +13,11 @@ const GH_API = `https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`;
 
 function toBase64(str: string): string {
   const bytes = new TextEncoder().encode(str);
-  const binary = String.fromCharCode(...bytes);
+  let binary = "";
+  const chunkSize = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode(...bytes.slice(i, i + chunkSize));
+  }
   return btoa(binary);
 }
 
@@ -48,18 +52,10 @@ function saveChanges(changes: LocalChanges) {
   localStorage.setItem(LS_CHANGES_KEY, JSON.stringify(changes));
 }
 
-function loadToken(): string {
-  return localStorage.getItem(LS_TOKEN_KEY) || "";
-}
-
-function saveToken(token: string) {
-  localStorage.setItem(LS_TOKEN_KEY, token);
-}
-
 export function EditorPage() {
   const [data, setData] = useState<ClimbingLog | null>(null);
   const [changes, setChanges] = useState<LocalChanges>(loadChanges);
-  const [token, setToken] = useState(loadToken);
+  const [token, setToken] = useState("");
   const [publishing, setPublishing] = useState(false);
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
   const [editing, setEditing] = useState<Session | null>(null);
@@ -181,6 +177,11 @@ export function EditorPage() {
         sessions: [...changes.added, ...changes.edited, ...baseSessions],
       };
 
+      const validation = climbingLogSchema.safeParse(merged);
+      if (!validation.success) {
+        throw new Error("本地数据校验失败");
+      }
+
       const content = toBase64(JSON.stringify(merged, null, 2));
 
       const shaResp = await fetch(GH_API,
@@ -232,10 +233,10 @@ export function EditorPage() {
   const allSessions = buildSessionList(data?.sessions || [], changes);
 
   return (
-    <div className="space-y-5 py-4">
-      <div>
-        <h1 className="text-lg font-bold text-stone-100">编辑记录</h1>
-        <p className="mt-1 text-xs text-stone-500">
+    <div className="space-y-5 py-3">
+      <div className="rounded-2xl border border-stone-800/90 bg-stone-900/55 p-5 shadow-[0_18px_55px_rgba(0,0,0,0.18)]">
+        <h1 className="text-xl font-bold text-stone-100">编辑记录</h1>
+        <p className="mt-1.5 text-sm leading-relaxed text-stone-400">
           增删改全部在本地完成，修改完点"发布"一次性同步到 GitHub。
         </p>
       </div>
@@ -252,20 +253,21 @@ export function EditorPage() {
         </div>
       )}
 
-      <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-4 space-y-3">
+      <div className="rounded-2xl border border-stone-800 bg-stone-900/65 p-4 space-y-3 shadow-[0_18px_55px_rgba(0,0,0,0.16)]">
         <p className="text-sm font-semibold text-stone-300">GitHub Token 设置</p>
-        <p className="text-xs text-stone-500">
-          Fine-grained token：权限 <strong>Contents: Read and write</strong>，仓库 Laurentdiao/my_climbing。
+        <p className="text-xs leading-relaxed text-stone-500">
+          Fine-grained token：权限 <strong>Contents: Read and write</strong>，仓库 Laurentdiao/my_climbing。Token 只保存在当前页面内存中，刷新后会清空。
         </p>
         <input
           type="password"
           value={token}
           onChange={(e) => {
             setToken(e.target.value);
-            saveToken(e.target.value);
           }}
+          autoComplete="off"
+          spellCheck={false}
           placeholder="github_pat_..."
-          className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
+          className="w-full rounded-xl border border-stone-700 bg-stone-950 px-3 py-2.5 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
         />
       </div>
 
@@ -283,11 +285,11 @@ export function EditorPage() {
         onRemove={removeGym}
       />
 
-      <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex flex-wrap items-center gap-2">
         {editing ? (
           <button
             onClick={() => setEditing(null)}
-            className="rounded-lg border border-stone-700 px-3 py-2 text-sm text-stone-400 hover:text-stone-200 transition-colors"
+            className="rounded-xl border border-stone-700 bg-stone-900 px-3 py-2 text-sm text-stone-400 hover:border-stone-600 hover:text-stone-200"
           >
             取消编辑
           </button>
@@ -305,7 +307,7 @@ export function EditorPage() {
             }
             className="rounded-lg bg-lime-500 px-4 py-2 text-sm font-semibold text-stone-950 hover:bg-lime-400 transition-colors"
           >
-            + 新建记录
+            新建记录
           </button>
         )}
         {changedCount > 0 && (
@@ -485,9 +487,12 @@ function SessionEditorForm({
 
   return (
     <form onSubmit={handleSubmit} className="rounded-xl border border-lime-800 bg-stone-900/60 p-4 space-y-4 overflow-hidden">
-      <h3 className="text-sm font-semibold text-lime-400">
-        {isNew ? "新建训练记录" : "编辑训练记录"}
-      </h3>
+      <div>
+        <h3 className="text-base font-semibold text-lime-300">
+          {isNew ? "新建训练记录" : "编辑训练记录"}
+        </h3>
+        <p className="mt-1 text-xs text-stone-500">先记日期和岩馆，再补线路、数量和外部视频链接。</p>
+      </div>
 
       <div className="min-w-0">
         <label className="block text-xs text-stone-500 mb-1">日期</label>
@@ -495,29 +500,29 @@ function SessionEditorForm({
           type="date"
           value={climbedAt}
           onChange={(e) => setClimbedAt(e.target.value)}
-          className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 focus:border-lime-400 focus:outline-none"
+          className="block w-full min-w-0 max-w-full rounded-xl border border-stone-700 bg-stone-950 px-3 py-2.5 text-left text-sm text-stone-200 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="min-w-0">
           <label className="block text-xs text-stone-500 mb-1">岩馆</label>
           <select
             value={gymId}
             onChange={(e) => setGymId(e.target.value)}
-            className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 focus:border-lime-400 focus:outline-none"
+            className="w-full min-w-0 rounded-xl border border-stone-700 bg-stone-950 px-3 py-2.5 text-sm text-stone-200 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
           >
             {gyms.map((g) => (
               <option key={g.id} value={g.id}>{g.name}</option>
             ))}
           </select>
         </div>
-        <div>
+        <div className="min-w-0">
           <label className="block text-xs text-stone-500 mb-1">时间段</label>
           <select
             value={timeOfDay}
             onChange={(e) => setTimeOfDay(e.target.value)}
-            className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 focus:border-lime-400 focus:outline-none"
+            className="w-full min-w-0 rounded-xl border border-stone-700 bg-stone-950 px-3 py-2.5 text-sm text-stone-200 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
           >
             <option value="morning">上午</option>
             <option value="afternoon">下午</option>
@@ -533,7 +538,7 @@ function SessionEditorForm({
           onChange={(e) => setNotes(e.target.value)}
           rows={2}
           placeholder="训练感受..."
-          className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
+          className="w-full min-w-0 rounded-xl border border-stone-700 bg-stone-950 px-3 py-2.5 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
         />
       </div>
 
@@ -551,7 +556,7 @@ function SessionEditorForm({
 
         <div className="space-y-3">
           {entries.map((entry, i) => (
-            <div key={i} className="rounded-lg border border-stone-800 bg-stone-950 p-3 space-y-2">
+            <div key={i} className="rounded-xl border border-stone-800 bg-stone-950/90 p-3 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs text-stone-500">线路 {i + 1}</span>
                 {entries.length > 1 && (
@@ -578,25 +583,25 @@ function SessionEditorForm({
                     updateEntry(i, "gradeLabel", defaults[d].label);
                     updateEntry(i, "gradeRank", defaults[d].rank);
                   }}
-                  className="w-full rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 focus:border-lime-400 focus:outline-none"
+                  className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-900 px-2.5 py-2 text-sm text-stone-200 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
                 >
                   <option value="bouldering">抱石</option>
                   <option value="lead">难度</option>
                 </select>
               </div>
 
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-2 mb-1 rounded-lg bg-stone-900/70 p-1">
                 <button
                   type="button"
                   onClick={() => setGradeInputMode("select")}
-                  className={`text-xs px-2 py-0.5 rounded ${gradeInputMode === "select" ? "bg-lime-400/20 text-lime-400" : "text-stone-500"}`}
+                  className={`rounded-md px-2.5 py-1 text-xs ${gradeInputMode === "select" ? "bg-lime-400 text-stone-950" : "text-stone-500 hover:text-stone-300"}`}
                 >
                   预设
                 </button>
                 <button
                   type="button"
                   onClick={() => setGradeInputMode("custom")}
-                  className={`text-xs px-2 py-0.5 rounded ${gradeInputMode === "custom" ? "bg-lime-400/20 text-lime-400" : "text-stone-500"}`}
+                  className={`rounded-md px-2.5 py-1 text-xs ${gradeInputMode === "custom" ? "bg-lime-400 text-stone-950" : "text-stone-500 hover:text-stone-300"}`}
                 >
                   自定义
                 </button>
@@ -611,7 +616,7 @@ function SessionEditorForm({
                     updateEntry(i, "gradeLabel", label);
                     updateEntry(i, "gradeRank", found?.rank || 0);
                   }}
-                  className="w-full rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 focus:border-lime-400 focus:outline-none"
+                  className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-900 px-2.5 py-2 text-sm text-stone-200 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
                 >
                   {(() => {
                     const gradeOptions = entry.discipline === "bouldering"
@@ -623,43 +628,43 @@ function SessionEditorForm({
                   })()}
                 </select>
               ) : (
-                <div className="flex gap-2">
+                <div className="grid grid-cols-[minmax(0,1fr)_5.5rem] gap-2">
                   <input
                     type="text"
                     value={entry.gradeLabel}
                     onChange={(e) => updateEntry(i, "gradeLabel", e.target.value)}
                     placeholder="如 V4, 5.10a"
-                    className="flex-1 rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
+                    className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-900 px-2.5 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
                   />
                   <input
                     type="number"
                     value={entry.gradeRank}
                     onChange={(e) => updateEntry(i, "gradeRank", parseInt(e.target.value, 10) || 0)}
                     placeholder="排序值"
-                    className="w-20 rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
+                    className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-900 px-2.5 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
                   />
                 </div>
               )}
 
-              <div className="grid grid-cols-2 gap-2">
-                <div>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-[7rem_minmax(0,1fr)]">
+                <div className="min-w-0">
                   <label className="block text-xs text-stone-600 mb-0.5">数量</label>
                   <input
                     type="number"
                     min={1}
                     value={entry.quantity}
                     onChange={(e) => updateEntry(i, "quantity", Math.max(1, parseInt(e.target.value, 10) || 1))}
-                    className="w-full rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 focus:border-lime-400 focus:outline-none"
+                    className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-900 px-2.5 py-2 text-sm text-stone-200 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
                   />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <label className="block text-xs text-stone-600 mb-0.5">备注 (可选)</label>
                   <input
                     type="text"
                     value={entry.notes}
                     onChange={(e) => updateEntry(i, "notes", e.target.value)}
                     placeholder="动作描述..."
-                    className="w-full rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
+                    className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-900 px-2.5 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
                   />
                 </div>
               </div>
@@ -671,7 +676,7 @@ function SessionEditorForm({
                   value={entry.videoUrl}
                   onChange={(e) => updateEntry(i, "videoUrl", e.target.value)}
                   placeholder="小红书链接..."
-                  className="w-full rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
+                  className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-900 px-2.5 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
                 />
               </div>
             </div>
@@ -679,17 +684,17 @@ function SessionEditorForm({
         </div>
       </div>
 
-      <div className="flex gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
         <button
           type="submit"
-          className="flex-1 rounded-lg bg-lime-500 px-4 py-2.5 text-sm font-semibold text-stone-950 hover:bg-lime-400 transition-colors"
+          className="rounded-xl bg-lime-500 px-4 py-3 text-sm font-semibold text-stone-950 hover:bg-lime-400"
         >
           保存到本地
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-lg border border-stone-700 px-4 py-2.5 text-sm text-stone-400 hover:text-stone-200 transition-colors"
+          className="rounded-xl border border-stone-700 bg-stone-900 px-4 py-3 text-sm text-stone-400 hover:border-stone-600 hover:text-stone-200"
         >
           取消
         </button>
@@ -742,7 +747,7 @@ function ProfileEditor({
   }
 
   return (
-    <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-4 space-y-3">
+    <div className="rounded-2xl border border-stone-800 bg-stone-900/65 p-4 space-y-3 shadow-[0_18px_55px_rgba(0,0,0,0.14)]">
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold text-stone-300">
           个人信息 {isDirty && <span className="text-xs text-amber-400">[已修改]</span>}
@@ -871,17 +876,17 @@ function GymManager({
             {allGyms.map((g) => (
               <div
                 key={g.id}
-                className="flex items-center justify-between rounded-lg border border-stone-800 bg-stone-950 px-3 py-2"
+                className="flex items-center justify-between gap-3 rounded-xl border border-stone-800 bg-stone-950 px-3 py-2"
               >
-                <span className="flex items-center gap-2 text-xs text-stone-300">
+                <span className="flex min-w-0 items-center gap-2 text-xs text-stone-300">
                   <span
-                    className="inline-block h-2.5 w-2.5 rounded-full"
+                    className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
                     style={{ backgroundColor: g.color }}
                   />
-                  {g.name}
+                  <span className="truncate">{g.name}</span>
                   {g.city && <span className="text-stone-500">· {g.city}</span>}
                   {addedGyms.some((a) => a.id === g.id) && (
-                    <span className="text-lime-400">[新增]</span>
+                    <span className="shrink-0 text-lime-400">[新增]</span>
                   )}
                 </span>
                 <button
@@ -894,25 +899,25 @@ function GymManager({
             ))}
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <div className="min-w-0">
               <label className="block text-xs text-stone-500 mb-0.5">岩馆名</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="如 Beta Boulders"
-                className="w-full rounded border border-stone-700 bg-stone-950 px-2 py-1.5 text-xs text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
+                className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-950 px-2.5 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
               />
             </div>
-            <div>
+            <div className="min-w-0">
               <label className="block text-xs text-stone-500 mb-0.5">城市</label>
               <input
                 type="text"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="如 上海"
-                className="w-full rounded border border-stone-700 bg-stone-950 px-2 py-1.5 text-xs text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
+                className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-950 px-2.5 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
               />
             </div>
           </div>
@@ -936,7 +941,7 @@ function GymManager({
             type="button"
             onClick={handleAdd}
             disabled={!name.trim()}
-            className="rounded-lg bg-lime-500 px-4 py-2 text-sm font-semibold text-stone-950 hover:bg-lime-400 disabled:opacity-50 transition-colors"
+            className="rounded-xl bg-lime-500 px-4 py-2.5 text-sm font-semibold text-stone-950 hover:bg-lime-400 disabled:opacity-50"
           >
             添加岩馆
           </button>

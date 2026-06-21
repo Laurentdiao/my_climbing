@@ -24,25 +24,24 @@ export function SessionCard({ session, gym }: SessionCardProps) {
   return (
     <Link
       to={`/sessions/${session.id}`}
-      className="block rounded-xl border border-stone-800 bg-stone-900/60 p-4 hover:border-stone-700 hover:bg-stone-900 transition-colors"
+      className="block rounded-2xl border border-stone-800/90 bg-stone-900/70 p-4 shadow-[0_18px_55px_rgba(0,0,0,0.18)] hover:border-lime-800/80 hover:bg-stone-900 transition-colors"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <h3 className="truncate text-sm font-semibold text-stone-100">
             {gymName}
           </h3>
-          <div className="mt-0.5 flex items-center gap-2 text-xs text-stone-400">
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-stone-400">
             <span>{dateStr} {weekDay}</span>
-            <span className="text-stone-100 text-xs">{disciplineLabel}</span>
+            <span className="rounded-full bg-stone-800 px-2 py-0.5 text-[11px] text-stone-200">{disciplineLabel}</span>
             {timeLabel && (
               <>
-                <span className="text-stone-600">·</span>
                 <span>{timeLabel}</span>
               </>
             )}
           </div>
         </div>
-        <span className="shrink-0 rounded-lg bg-stone-800 px-2 py-1 text-xs font-medium text-stone-300">
+        <span className="shrink-0 rounded-lg bg-lime-400/12 px-2.5 py-1 text-xs font-semibold text-lime-300 ring-1 ring-lime-400/15">
           {totalProblems} 条线
         </span>
       </div>

@@ -3,8 +3,8 @@ import type { ClimbingLog } from "../features/climbing/domain/types";
 import type { DashboardStats } from "../features/climbing/domain/stats";
 import { loadClimbingLog } from "../features/climbing/adapters/staticDataRepository";
 import { getDashboardStats } from "../features/climbing/domain/stats";
+import { StatsSummary } from "../features/climbing/components/StatsSummary";
 import {
-  StatsSummary,
   MonthlyTrendChart,
   GymDistributionChart,
   GradeDistributionChart,

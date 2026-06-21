@@ -3,10 +3,10 @@ import { NavBar } from "./NavBar";
 
 export function Layout() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex min-h-[100dvh] flex-col">
       <NavBar />
-      <main className="flex-1 px-4 py-4 pb-20 sm:pb-4">
-        <div className="mx-auto max-w-2xl">
+      <main className="flex-1 px-3 py-4 pb-24 sm:px-4 sm:pb-6">
+        <div className="mx-auto w-full max-w-3xl">
           <Outlet />
         </div>
       </main>

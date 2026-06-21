@@ -37,6 +37,10 @@ src/
 
 ## How to Update Records
 
+You can use the `/editor` page to prepare changes in the browser, then publish them to GitHub with a fine-grained token. For safer use, the token is kept only in page memory and is cleared when the page refreshes.
+
+Manual Git workflow:
+
 1. Edit `src/data/climbing-log.json` with your new sessions.
 2. Run `npm run validate:data` to check for errors.
 3. Run `npm run test` to ensure nothing breaks.
@@ -95,7 +99,8 @@ If using a `<username>.github.io` repository, the site will be at `https://YOUR_
 
 ## Constraints
 
-- No server, no database, no login.
+- No server, no database, no private backend login.
 - Data is stored in `src/data/climbing-log.json` and versioned by Git.
 - Video files are NOT stored in this repo. Only external links are recorded.
 - All content in the data file is public.
+- Do not commit GitHub tokens, `.env` files, private notes, or unpublished video links.

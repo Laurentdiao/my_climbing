@@ -9,25 +9,25 @@ const links = [
 
 export function NavBar() {
   return (
-    <nav className="sticky top-0 z-50 border-b border-stone-800 bg-stone-950/80 backdrop-blur sm:static">
-      <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-3">
+    <nav className="sticky top-0 z-50 border-b border-stone-800/80 bg-stone-950/85 shadow-[0_10px_30px_rgba(0,0,0,0.24)] backdrop-blur sm:static">
+      <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
         <button
           onClick={() => window.location.reload()}
-          className="text-sm font-semibold tracking-wide text-lime-400 hover:text-lime-300 active:scale-95 transition-all"
+          className="shrink-0 text-sm font-semibold tracking-wide text-lime-300 hover:text-lime-200"
         >
           Climbing Log
         </button>
-        <div className="flex gap-0.5 sm:gap-1 overflow-x-auto">
+        <div className="flex min-w-0 gap-1 overflow-x-auto rounded-xl border border-stone-800 bg-stone-900/55 p-1">
           {links.map((link) => (
             <NavLink
               key={link.to}
               to={link.to}
               end={link.to === "/"}
               className={({ isActive }) =>
-                `rounded-lg px-2 py-1.5 text-xs font-medium transition-colors whitespace-nowrap ${
+                `whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
                   isActive
-                    ? "bg-lime-400/15 text-lime-400"
-                    : "text-stone-400 hover:text-stone-200"
+                    ? "bg-lime-400 text-stone-950 shadow-sm"
+                    : "text-stone-400 hover:bg-stone-800 hover:text-stone-200"
                 }`
               }
             >

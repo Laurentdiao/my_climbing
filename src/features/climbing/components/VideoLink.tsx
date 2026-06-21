@@ -14,13 +14,22 @@ interface VideoLinkProps {
 
 export function VideoLink({ url, platform, title }: VideoLinkProps) {
   const label = platformLabels[platform] ?? platform;
+  const safeUrl = getSafeExternalUrl(url);
+
+  if (!safeUrl) {
+    return (
+      <span className="inline-flex items-center rounded-lg border border-amber-800/70 bg-amber-950/20 px-2.5 py-1 text-xs text-amber-300">
+        视频链接格式无效
+      </span>
+    );
+  }
 
   return (
     <a
-      href={url}
+      href={safeUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-1 rounded-lg border border-stone-700 px-2.5 py-1 text-xs text-stone-300 hover:border-stone-500 hover:text-stone-100 transition-colors"
+      className="inline-flex max-w-full items-center gap-1.5 rounded-lg border border-stone-700 bg-stone-950/55 px-2.5 py-1 text-xs text-stone-300 hover:border-lime-700 hover:text-stone-100 transition-colors"
     >
       <svg
         className="h-3.5 w-3.5"
@@ -36,7 +45,19 @@ export function VideoLink({ url, platform, title }: VideoLinkProps) {
         />
       </svg>
       <span>{label}</span>
-      {title && <span className="text-stone-500">· {title}</span>}
+      {title && <span className="truncate text-stone-500">{title}</span>}
     </a>
   );
+}
+
+function getSafeExternalUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+      return null;
+    }
+    return parsed.toString();
+  } catch {
+    return null;
+  }
 }

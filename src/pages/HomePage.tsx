@@ -5,7 +5,7 @@ import type { DashboardStats } from "../features/climbing/domain/stats";
 import { loadClimbingLog } from "../features/climbing/adapters/staticDataRepository";
 import { getDashboardStats } from "../features/climbing/domain/stats";
 import { getGymById } from "../features/climbing/adapters/staticDataRepository";
-import { StatsSummary } from "../features/climbing/components/StatsPanel";
+import { StatsSummary } from "../features/climbing/components/StatsSummary";
 import { SessionCard } from "../features/climbing/components/SessionCard";
 
 export function HomePage() {

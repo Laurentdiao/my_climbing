@@ -14,29 +14,6 @@ interface StatsPanelProps {
   stats: DashboardStats;
 }
 
-export function StatsSummary({ stats }: StatsPanelProps) {
-  const cards = [
-    { label: "训练场次", value: stats.totalSessions },
-    { label: "线路总数", value: stats.totalProblems },
-    { label: "岩馆数量", value: stats.gymDistribution.length },
-    { label: "难度范围", value: stats.gradeDistribution.length },
-  ];
-
-  return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-      {cards.map((card) => (
-        <div
-          key={card.label}
-          className="rounded-xl border border-stone-800 bg-stone-900/60 p-4 text-center"
-        >
-          <div className="text-2xl font-bold text-lime-400 font-nums" style={{ fontVariantNumeric: "tabular-nums" }}>{card.value}</div>
-          <div className="mt-0.5 text-xs text-stone-500">{card.label}</div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export function MonthlyTrendChart({ stats }: StatsPanelProps) {
   if (stats.monthlyTrend.length === 0) return null;
 

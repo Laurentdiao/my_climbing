@@ -31,7 +31,9 @@ const entrySchema = z.object({
   gradeRank: z.number().int(),
   quantity: z.number().int().positive(),
   notes: z.string(),
-  videoUrl: z.string(),
+  videoUrl: z
+    .string()
+    .refine((value) => value === "" || /^https?:\/\//i.test(value), "videoUrl must be empty or start with http(s)"),
   videoPlatform: videoPlatformSchema.or(z.literal("")),
   videoTitle: z.string(),
 });
