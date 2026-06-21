@@ -13,7 +13,7 @@ export function NavBar() {
       <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-3">
         <button
           onClick={() => window.location.reload()}
-          className="text-sm font-semibold tracking-wide text-lime-400 hover:text-lime-300 transition-colors"
+          className="text-sm font-semibold tracking-wide text-lime-400 hover:text-lime-300 active:scale-95 transition-all"
         >
           Climbing Log
         </button>

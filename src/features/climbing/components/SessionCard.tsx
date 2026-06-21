@@ -1,18 +1,13 @@
 import type { Session, Gym } from "../domain/types";
 import { GradePill } from "./GradePill";
 import { getSessionEntriesTotal, getSessionDisciplines } from "../domain/stats";
+import { TIME_OF_DAY_LABELS } from "../domain/constants";
 import { Link } from "react-router-dom";
 
 interface SessionCardProps {
   session: Session;
   gym?: Gym;
 }
-
-const timeOfDayLabels: Record<string, string> = {
-  morning: "上午",
-  afternoon: "下午",
-  evening: "晚上",
-};
 
 export function SessionCard({ session, gym }: SessionCardProps) {
   const totalProblems = getSessionEntriesTotal(session.entries);
@@ -23,7 +18,7 @@ export function SessionCard({ session, gym }: SessionCardProps) {
   });
   const weekDay = date.toLocaleDateString("zh-CN", { weekday: "short" });
   const gymName = gym?.name || session.gymId;
-  const timeLabel = timeOfDayLabels[session.timeOfDay] || session.timeOfDay;
+  const timeLabel = TIME_OF_DAY_LABELS[session.timeOfDay] || session.timeOfDay;
   const disciplineLabel = getSessionDisciplines(session.entries);
 
   return (

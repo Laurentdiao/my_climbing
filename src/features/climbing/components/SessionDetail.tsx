@@ -2,18 +2,13 @@ import type { Session, Gym } from "../domain/types";
 import { GradePill } from "./GradePill";
 import { VideoLink } from "./VideoLink";
 import { getSessionEntriesTotal, getSessionDisciplines } from "../domain/stats";
+import { TIME_OF_DAY_LABELS } from "../domain/constants";
 import { Link } from "react-router-dom";
 
 interface SessionDetailProps {
   session: Session;
   gym?: Gym;
 }
-
-const timeOfDayLabels: Record<string, string> = {
-  morning: "上午",
-  afternoon: "下午",
-  evening: "晚上",
-};
 
 export function SessionDetail({ session, gym }: SessionDetailProps) {
   const totalProblems = getSessionEntriesTotal(session.entries);
@@ -25,7 +20,7 @@ export function SessionDetail({ session, gym }: SessionDetailProps) {
     year: "numeric",
   });
   const gymName = gym?.name || session.gymId;
-  const timeLabel = timeOfDayLabels[session.timeOfDay] || session.timeOfDay;
+  const timeLabel = TIME_OF_DAY_LABELS[session.timeOfDay] || session.timeOfDay;
   const disciplineLabel = getSessionDisciplines(session.entries);
 
   return (

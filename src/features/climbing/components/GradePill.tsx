@@ -49,6 +49,7 @@ export function GradePill({ gradeLabel, size = "md" }: GradePillProps) {
       className={`inline-flex items-center rounded-md font-mono font-semibold ${
         size === "sm" ? "px-1.5 py-0.5 text-xs" : "px-2 py-0.5 text-sm"
       } ${color}`}
+      style={{ fontVariantNumeric: "tabular-nums" }}
     >
       {gradeLabel}
     </span>

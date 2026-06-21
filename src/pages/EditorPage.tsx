@@ -7,6 +7,15 @@ import { ALL_GRADES } from "../features/climbing/domain/grade";
 
 const LS_TOKEN_KEY = "climbing-gh-token";
 const LS_CHANGES_KEY = "climbing-local-changes";
+const GH_REPO = "Laurentdiao/my_climbing";
+const GH_FILE = "src/data/climbing-log.json";
+const GH_API = `https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`;
+
+function toBase64(str: string): string {
+  const bytes = new TextEncoder().encode(str);
+  const binary = String.fromCharCode(...bytes);
+  return btoa(binary);
+}
 
 interface LocalChanges {
   profile: Profile | null;
@@ -172,10 +181,9 @@ export function EditorPage() {
         sessions: [...changes.added, ...changes.edited, ...baseSessions],
       };
 
-      const content = btoa(unescape(encodeURIComponent(JSON.stringify(merged, null, 2))));
+      const content = toBase64(JSON.stringify(merged, null, 2));
 
-      const shaResp = await fetch(
-        "https://api.github.com/repos/Laurentdiao/my_climbing/contents/src/data/climbing-log.json",
+      const shaResp = await fetch(GH_API,
         { headers: { Authorization: `Bearer ${token}` } },
       );
       if (!shaResp.ok && shaResp.status !== 404) {
@@ -192,7 +200,7 @@ export function EditorPage() {
       if (sha) body.sha = sha;
 
       const putResp = await fetch(
-        "https://api.github.com/repos/Laurentdiao/my_climbing/contents/src/data/climbing-log.json",
+        GH_API,
         {
           method: "PUT",
           headers: {
@@ -212,8 +220,8 @@ export function EditorPage() {
 
       loadClimbingLog().then(setData);
     } catch (e: unknown) {
-      const errMsg = e instanceof Error ? e.message : "未知错误";
-      setMessage({ type: "err", text: `发布失败: ${errMsg}` });
+      console.error("Publish failed:", e);
+      setMessage({ type: "err", text: "发布失败，请检查 Token 权限或网络连接" });
     } finally {
       setPublishing(false);
     }
@@ -476,18 +484,18 @@ function SessionEditorForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-xl border border-lime-800 bg-stone-900/60 p-4 space-y-4">
+    <form onSubmit={handleSubmit} className="rounded-xl border border-lime-800 bg-stone-900/60 p-4 space-y-4 overflow-hidden">
       <h3 className="text-sm font-semibold text-lime-400">
         {isNew ? "新建训练记录" : "编辑训练记录"}
       </h3>
 
-      <div>
+      <div className="min-w-0">
         <label className="block text-xs text-stone-500 mb-1">日期</label>
         <input
           type="date"
           value={climbedAt}
           onChange={(e) => setClimbedAt(e.target.value)}
-          className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 focus:border-lime-400 focus:outline-none"
+          className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 focus:border-lime-400 focus:outline-none"
         />
       </div>
 
@@ -626,7 +634,7 @@ function SessionEditorForm({
                   <input
                     type="number"
                     value={entry.gradeRank}
-                    onChange={(e) => updateEntry(i, "gradeRank", parseInt(e.target.value) || 0)}
+                    onChange={(e) => updateEntry(i, "gradeRank", parseInt(e.target.value, 10) || 0)}
                     placeholder="排序值"
                     className="w-20 rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
                   />
@@ -640,7 +648,7 @@ function SessionEditorForm({
                     type="number"
                     min={1}
                     value={entry.quantity}
-                    onChange={(e) => updateEntry(i, "quantity", Math.max(1, parseInt(e.target.value) || 1))}
+                    onChange={(e) => updateEntry(i, "quantity", Math.max(1, parseInt(e.target.value, 10) || 1))}
                     className="w-full rounded border border-stone-700 bg-stone-900 px-2 py-1.5 text-xs text-stone-200 focus:border-lime-400 focus:outline-none"
                   />
                 </div>

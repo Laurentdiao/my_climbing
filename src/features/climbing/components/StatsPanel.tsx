@@ -29,7 +29,7 @@ export function StatsSummary({ stats }: StatsPanelProps) {
           key={card.label}
           className="rounded-xl border border-stone-800 bg-stone-900/60 p-4 text-center"
         >
-          <div className="text-2xl font-bold text-lime-400">{card.value}</div>
+          <div className="text-2xl font-bold text-lime-400 font-nums" style={{ fontVariantNumeric: "tabular-nums" }}>{card.value}</div>
           <div className="mt-0.5 text-xs text-stone-500">{card.label}</div>
         </div>
       ))}
