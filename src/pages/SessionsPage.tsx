@@ -19,6 +19,7 @@ const GRADE_OPTIONS = [
 export function SessionsPage() {
   const [data, setData] = useState<ClimbingLog | null>(null);
   const [gymFilter, setGymFilter] = useState<string | null>(null);
+  const [disciplineFilter, setDisciplineFilter] = useState("");
   const [gradeFilter, setGradeFilter] = useState("");
 
   useEffect(() => {
@@ -29,6 +30,7 @@ export function SessionsPage() {
     if (!data) return [];
     const filters: Record<string, string | number> = {};
     if (gymFilter) filters.gymId = gymFilter;
+    if (disciplineFilter) filters.discipline = disciplineFilter;
     if (gradeFilter) {
       const rank = parseInt(gradeFilter) * 10;
       if (gradeFilter === "5") {
@@ -41,7 +43,7 @@ export function SessionsPage() {
       }
     }
     return filterSessions(data, filters as Parameters<typeof filterSessions>[1]);
-  }, [data, gymFilter, gradeFilter]);
+  }, [data, gymFilter, disciplineFilter, gradeFilter]);
 
   if (!data) {
     return (
@@ -69,8 +71,21 @@ export function SessionsPage() {
         />
       </div>
 
-      <div>
-        <p className="mb-1.5 text-xs text-stone-500">最低难度</p>
+      <div className="flex gap-3">
+        <div className="flex-1">
+          <p className="mb-1.5 text-xs text-stone-500">项目</p>
+          <select
+            value={disciplineFilter}
+            onChange={(e) => setDisciplineFilter(e.target.value)}
+            className="w-full rounded-lg border border-stone-700 bg-stone-900 px-3 py-1.5 text-xs text-stone-300 focus:border-lime-400 focus:outline-none"
+          >
+            <option value="">全部</option>
+            <option value="bouldering">抱石</option>
+            <option value="lead">难度</option>
+          </select>
+        </div>
+        <div className="flex-1">
+          <p className="mb-1.5 text-xs text-stone-500">最低难度</p>
         <select
           value={gradeFilter}
           onChange={(e) => setGradeFilter(e.target.value)}
@@ -82,6 +97,7 @@ export function SessionsPage() {
             </option>
           ))}
         </select>
+        </div>
       </div>
 
       <div className="space-y-3">

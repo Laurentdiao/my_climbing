@@ -21,6 +21,103 @@
   ],
   "sessions": [
     {
+      "id": "2026-06-19-yanshi-lead",
+      "climbedAt": "2026-06-19",
+      "gymId": "yanshi",
+      "discipline": "lead",
+      "timeOfDay": "evening",
+      "notes": "第一次尝试难度线路，先热身再上 5.10。",
+      "entries": [
+        {
+          "id": "entry-lead-1",
+          "discipline": "lead",
+          "gradeLabel": "5.9",
+          "gradeRank": 900,
+          "quantity": 2,
+          "notes": "热身线路，比较轻松",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-lead-2",
+          "discipline": "lead",
+          "gradeLabel": "5.10a",
+          "gradeRank": 1000,
+          "quantity": 2,
+          "notes": "onsight 了，很流畅",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-lead-3",
+          "discipline": "lead",
+          "gradeLabel": "5.10b",
+          "gradeRank": 1010,
+          "quantity": 1,
+          "notes": "第二把才过，耐力不够",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-lead-4",
+          "discipline": "lead",
+          "gradeLabel": "5.10d",
+          "gradeRank": 1030,
+          "quantity": 1,
+          "notes": "难点在最后几步，指力跟不上",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        }
+      ]
+    },
+    {
+      "id": "2026-05-20-yanshi-lead",
+      "climbedAt": "2026-05-20",
+      "gymId": "yanshi",
+      "discipline": "lead",
+      "timeOfDay": "afternoon",
+      "notes": "周末去爬难度，主要是 5.9 和 5.10a。",
+      "entries": [
+        {
+          "id": "entry-lead-5",
+          "discipline": "lead",
+          "gradeLabel": "5.8",
+          "gradeRank": 800,
+          "quantity": 3,
+          "notes": "凑数热身",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-lead-6",
+          "discipline": "lead",
+          "gradeLabel": "5.9",
+          "gradeRank": 900,
+          "quantity": 3,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "",
+          "videoTitle": ""
+        },
+        {
+          "id": "entry-lead-7",
+          "discipline": "lead",
+          "gradeLabel": "5.10a",
+          "gradeRank": 1000,
+          "quantity": 2,
+          "notes": "",
+          "videoUrl": "https://www.xiaohongshu.com/explore/example999",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": "5.10a 线路记录"
+        }
+      ]
+    },
+    {
       "id": "2026-06-18-dyno",
       "climbedAt": "2026-06-18",
       "gymId": "dyno",
