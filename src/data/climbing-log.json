@@ -21,6 +21,26 @@
   ],
   "sessions": [
     {
+      "id": "2026-06-21-yanshi-local-1782055540461",
+      "climbedAt": "2026-06-21",
+      "gymId": "yanshi",
+      "timeOfDay": "evening",
+      "notes": "",
+      "entries": [
+        {
+          "id": "local-entry-1782055507487-eits",
+          "discipline": "bouldering",
+          "gradeLabel": "V3",
+          "gradeRank": 30,
+          "quantity": 1,
+          "notes": "勾脚红",
+          "videoUrl": "",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": ""
+        }
+      ]
+    },
+    {
       "id": "2026-06-21-yanshi-mixed",
       "climbedAt": "2026-06-21",
       "gymId": "yanshi",
