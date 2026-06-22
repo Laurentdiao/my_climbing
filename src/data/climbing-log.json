@@ -17,6 +17,12 @@
       "name": "Dyno Climbing",
       "city": "上海",
       "color": "#f97316"
+    },
+    {
+      "id": "gym-mqpdnyip",
+      "name": "香蕉攀岩（上地店）",
+      "city": "北京",
+      "color": "#84cc16"
     }
   ],
   "sessions": []
