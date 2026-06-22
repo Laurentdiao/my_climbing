@@ -3,7 +3,11 @@ import type { ClimbingLog, Session, Entry, Gym, Profile } from "../features/clim
 import { loadClimbingLog } from "../features/climbing/adapters/staticDataRepository";
 import { getGymById } from "../features/climbing/adapters/staticDataRepository";
 import { getSessionEntriesTotal } from "../features/climbing/domain/stats";
-import { ALL_GRADES } from "../features/climbing/domain/grade";
+import {
+  ALL_GRADES,
+  getDefaultGradeForDiscipline,
+  getGradesForDiscipline,
+} from "../features/climbing/domain/grade";
 import { climbingLogSchema } from "../features/climbing/domain/validators";
 import {
   createGymId,
@@ -548,9 +552,9 @@ function SessionEditorForm({
     setEntries([...entries, emptyEntry()]);
   }
 
-  function updateEntry(index: number, field: keyof Entry, value: string | number) {
+  function updateEntry(index: number, patch: Partial<Entry>) {
     setEntries(
-      entries.map((e, i) => (i === index ? { ...e, [field]: value } : e)),
+      (current) => current.map((e, i) => (i === index ? { ...e, ...patch } : e)),
     );
   }
 
@@ -665,13 +669,12 @@ function SessionEditorForm({
                   value={entry.discipline}
                   onChange={(e) => {
                     const d = e.target.value as "bouldering" | "lead";
-                    updateEntry(i, "discipline", d);
-                    const defaults: Record<string, { label: string; rank: number }> = {
-                      bouldering: { label: "V3", rank: 30 },
-                      lead: { label: "5.9", rank: 900 },
-                    };
-                    updateEntry(i, "gradeLabel", defaults[d].label);
-                    updateEntry(i, "gradeRank", defaults[d].rank);
+                    const defaultGrade = getDefaultGradeForDiscipline(d);
+                    updateEntry(i, {
+                      discipline: d,
+                      gradeLabel: defaultGrade.label,
+                      gradeRank: defaultGrade.rank,
+                    });
                   }}
                   className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-900 px-2.5 py-2 text-sm text-stone-200 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
                 >
@@ -703,15 +706,15 @@ function SessionEditorForm({
                   onChange={(e) => {
                     const label = e.target.value;
                     const found = ALL_GRADES.find((g) => g.label === label);
-                    updateEntry(i, "gradeLabel", label);
-                    updateEntry(i, "gradeRank", found?.rank || 0);
+                    updateEntry(i, {
+                      gradeLabel: label,
+                      gradeRank: found?.rank || 0,
+                    });
                   }}
                   className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-900 px-2.5 py-2 text-sm text-stone-200 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
                 >
                   {(() => {
-                    const gradeOptions = entry.discipline === "bouldering"
-                      ? ALL_GRADES.filter((g) => g.label.startsWith("V"))
-                      : ALL_GRADES.filter((g) => g.label.startsWith("5."));
+                    const gradeOptions = getGradesForDiscipline(entry.discipline);
                     return gradeOptions.map((g) => (
                       <option key={g.label} value={g.label}>{g.label}</option>
                     ));
@@ -722,14 +725,14 @@ function SessionEditorForm({
                   <input
                     type="text"
                     value={entry.gradeLabel}
-                    onChange={(e) => updateEntry(i, "gradeLabel", e.target.value)}
+                    onChange={(e) => updateEntry(i, { gradeLabel: e.target.value })}
                     placeholder="如 V4, 5.10a"
                     className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-900 px-2.5 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
                   />
                   <input
                     type="number"
                     value={entry.gradeRank}
-                    onChange={(e) => updateEntry(i, "gradeRank", parseInt(e.target.value, 10) || 0)}
+                    onChange={(e) => updateEntry(i, { gradeRank: parseInt(e.target.value, 10) || 0 })}
                     placeholder="排序值"
                     className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-900 px-2.5 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
                   />
@@ -743,7 +746,7 @@ function SessionEditorForm({
                     type="number"
                     min={1}
                     value={entry.quantity}
-                    onChange={(e) => updateEntry(i, "quantity", Math.max(1, parseInt(e.target.value, 10) || 1))}
+                    onChange={(e) => updateEntry(i, { quantity: Math.max(1, parseInt(e.target.value, 10) || 1) })}
                     className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-900 px-2.5 py-2 text-sm text-stone-200 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
                   />
                 </div>
@@ -752,7 +755,7 @@ function SessionEditorForm({
                   <input
                     type="text"
                     value={entry.notes}
-                    onChange={(e) => updateEntry(i, "notes", e.target.value)}
+                    onChange={(e) => updateEntry(i, { notes: e.target.value })}
                     placeholder="动作描述..."
                     className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-900 px-2.5 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
                   />
@@ -764,7 +767,7 @@ function SessionEditorForm({
                 <input
                   type="text"
                   value={entry.videoUrl}
-                  onChange={(e) => updateEntry(i, "videoUrl", e.target.value)}
+                  onChange={(e) => updateEntry(i, { videoUrl: e.target.value })}
                   placeholder="小红书链接..."
                   className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-900 px-2.5 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
                 />

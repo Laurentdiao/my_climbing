@@ -1,4 +1,9 @@
-const gradeTable: { label: string; rank: number }[] = [
+export interface GradeOption {
+  label: string;
+  rank: number;
+}
+
+export const BOULDERING_GRADES: GradeOption[] = [
   { label: "V0", rank: 0 },
   { label: "V1", rank: 10 },
   { label: "V2", rank: 20 },
@@ -10,6 +15,9 @@ const gradeTable: { label: string; rank: number }[] = [
   { label: "V8", rank: 80 },
   { label: "V9", rank: 90 },
   { label: "V10", rank: 100 },
+];
+
+export const LEAD_GRADES: GradeOption[] = [
   { label: "5.8", rank: 800 },
   { label: "5.9", rank: 900 },
   { label: "5.10a", rank: 1000 },
@@ -29,6 +37,8 @@ const gradeTable: { label: string; rank: number }[] = [
   { label: "5.13c", rank: 1320 },
   { label: "5.13d", rank: 1330 },
 ];
+
+const gradeTable = [...BOULDERING_GRADES, ...LEAD_GRADES];
 
 export function getGradeRank(gradeLabel: string): number | null {
   const found = gradeTable.find(
@@ -54,6 +64,20 @@ export function gradeLabelToRank(label: string): number {
 
 export function isBoulderingGrade(label: string): boolean {
   return label.startsWith("V") || label.startsWith("v");
+}
+
+export function getGradesForDiscipline(
+  discipline: "bouldering" | "lead",
+): GradeOption[] {
+  return discipline === "bouldering" ? BOULDERING_GRADES : LEAD_GRADES;
+}
+
+export function getDefaultGradeForDiscipline(
+  discipline: "bouldering" | "lead",
+): GradeOption {
+  return discipline === "bouldering"
+    ? BOULDERING_GRADES[3]
+    : LEAD_GRADES[1];
 }
 
 export const ALL_GRADES = gradeTable;

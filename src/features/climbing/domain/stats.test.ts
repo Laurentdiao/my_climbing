@@ -6,7 +6,14 @@ import {
   getSessionEntriesTotal,
   getSessionById,
 } from "./stats";
-import { gradeLabelToRank, compareGradeRank } from "./grade";
+import {
+  BOULDERING_GRADES,
+  compareGradeRank,
+  getDefaultGradeForDiscipline,
+  getGradesForDiscipline,
+  gradeLabelToRank,
+  LEAD_GRADES,
+} from "./grade";
 
 const sampleData: ClimbingLog = {
   profile: {
@@ -167,5 +174,23 @@ describe("grade helpers", () => {
     expect(compareGradeRank(30, 50)).toBeLessThan(0);
     expect(compareGradeRank(1000, 30)).toBeGreaterThan(0);
     expect(compareGradeRank(30, 30)).toBe(0);
+  });
+
+  it("keeps bouldering and lead grade systems separate", () => {
+    expect(getGradesForDiscipline("bouldering")).toBe(BOULDERING_GRADES);
+    expect(getGradesForDiscipline("lead")).toBe(LEAD_GRADES);
+    expect(BOULDERING_GRADES.every((g) => g.label.startsWith("V"))).toBe(true);
+    expect(LEAD_GRADES.every((g) => g.label.startsWith("5."))).toBe(true);
+  });
+
+  it("uses discipline-specific default grades", () => {
+    expect(getDefaultGradeForDiscipline("bouldering")).toEqual({
+      label: "V3",
+      rank: 30,
+    });
+    expect(getDefaultGradeForDiscipline("lead")).toEqual({
+      label: "5.9",
+      rank: 900,
+    });
   });
 });
