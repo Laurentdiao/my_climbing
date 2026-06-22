@@ -1,4 +1,5 @@
 import { z } from "zod/v4";
+import { SAFE_ID_PATTERN } from "./ids";
 
 const profileSchema = z.object({
   displayName: z.string().min(1),
@@ -8,7 +9,10 @@ const profileSchema = z.object({
 });
 
 const gymSchema = z.object({
-  id: z.string().min(1),
+  id: z
+    .string()
+    .min(1)
+    .regex(SAFE_ID_PATTERN, "gym id must use lowercase letters, numbers, and hyphens"),
   name: z.string().min(1),
   city: z.string(),
   color: z.string(),

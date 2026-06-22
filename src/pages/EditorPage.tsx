@@ -5,6 +5,12 @@ import { getGymById } from "../features/climbing/adapters/staticDataRepository";
 import { getSessionEntriesTotal } from "../features/climbing/domain/stats";
 import { ALL_GRADES } from "../features/climbing/domain/grade";
 import { climbingLogSchema } from "../features/climbing/domain/validators";
+import {
+  createGymId,
+  ensureSafeGymIds,
+  normalizeLogGymIds,
+  remapSessionGymIds,
+} from "../features/climbing/domain/ids";
 
 const LS_CHANGES_KEY = "climbing-local-changes";
 const LS_TOKEN_KEY = "climbing-gh-token";
@@ -36,17 +42,31 @@ function loadChanges(): LocalChanges {
     const raw = localStorage.getItem(LS_CHANGES_KEY);
     if (!raw) return { profile: null, gyms: [], removedGyms: [], added: [], edited: [], deleted: [] };
     const parsed = JSON.parse(raw);
-    return {
+    const changes = normalizeLocalChanges({
       profile: parsed.profile || null,
       gyms: parsed.gyms || [],
       removedGyms: parsed.removedGyms || [],
       added: parsed.added || [],
       edited: parsed.edited || [],
       deleted: parsed.deleted || [],
-    };
+    });
+    saveChanges(changes);
+    return changes;
   } catch {
     return { profile: null, gyms: [], removedGyms: [], added: [], edited: [], deleted: [] };
   }
+}
+
+function normalizeLocalChanges(changes: LocalChanges): LocalChanges {
+  const { gyms, idMap, changed } = ensureSafeGymIds(changes.gyms);
+  if (!changed) return changes;
+
+  return {
+    ...changes,
+    gyms,
+    added: remapSessionGymIds(changes.added, idMap),
+    edited: remapSessionGymIds(changes.edited, idMap),
+  };
 }
 
 function saveChanges(changes: LocalChanges) {
@@ -180,7 +200,7 @@ export function EditorPage() {
         (s) => !deletedIds.has(s.id) && !editedIds.has(s.id),
       );
 
-      const merged: ClimbingLog = {
+      const merged: ClimbingLog = normalizeLogGymIds({
         ...data,
         profile: changes.profile || data.profile,
         gyms: [
@@ -188,7 +208,7 @@ export function EditorPage() {
           ...changes.gyms,
         ],
         sessions: [...changes.added, ...changes.edited, ...baseSessions],
-      };
+      });
 
       const validation = climbingLogSchema.safeParse(merged);
       if (!validation.success) {
@@ -895,7 +915,7 @@ function GymManager({
 
   function handleAdd() {
     if (!name.trim()) return;
-    const id = Date.now().toString(36);
+    const id = createGymId(name, { existingIds: allGyms.map((g) => g.id) });
     onAdd({ id, name: name.trim(), city: city.trim(), color });
     setName("");
     setCity("");
