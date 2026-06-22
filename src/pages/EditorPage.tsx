@@ -895,11 +895,14 @@ function GymManager({
 
   function handleAdd() {
     if (!name.trim()) return;
-    const id = name
+    const safe = name
       .toLowerCase()
-      .replace(/[^a-z0-9\u4e00-\u9fff]+/g, "-")
+      .replace(/[^\x00-\x7F]+/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/-+/g, "-")
       .replace(/^-|-$/g, "");
-    onAdd({ id: id + "-" + Date.now().toString(36), name: name.trim(), city: city.trim(), color });
+    const id = (safe || "gym") + "-" + Date.now().toString(36);
+    onAdd({ id, name: name.trim(), city: city.trim(), color });
     setName("");
     setCity("");
     setColor("#84cc16");
