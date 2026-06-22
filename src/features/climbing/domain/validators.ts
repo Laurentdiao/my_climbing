@@ -8,7 +8,7 @@ const profileSchema = z.object({
 });
 
 const gymSchema = z.object({
-  id: z.string().min(1).regex(/^[a-z0-9-]+$/, "gym id must be kebab-case"),
+  id: z.string().min(1),
   name: z.string().min(1),
   city: z.string(),
   color: z.string(),

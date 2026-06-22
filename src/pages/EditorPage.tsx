@@ -895,13 +895,7 @@ function GymManager({
 
   function handleAdd() {
     if (!name.trim()) return;
-    const safe = name
-      .toLowerCase()
-      .replace(/[^\x00-\x7F]+/g, "")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/-+/g, "-")
-      .replace(/^-|-$/g, "");
-    const id = (safe || "gym") + "-" + Date.now().toString(36);
+    const id = Date.now().toString(36);
     onAdd({ id, name: name.trim(), city: city.trim(), color });
     setName("");
     setCity("");
