@@ -192,7 +192,8 @@ export function EditorPage() {
 
       const validation = climbingLogSchema.safeParse(merged);
       if (!validation.success) {
-        throw new Error("本地数据校验失败");
+        const issues = validation.error.issues.map(i => `${i.path.join(".")}: ${i.message}`).join("; ");
+        throw new Error("数据校验失败: " + issues);
       }
 
       const content = toBase64(JSON.stringify(merged, null, 2));
@@ -200,8 +201,13 @@ export function EditorPage() {
       const shaResp = await fetch(GH_API,
         { headers: { Authorization: `Bearer ${token}` } },
       );
-      if (!shaResp.ok && shaResp.status !== 404) {
-        throw new Error(`GitHub API: ${shaResp.status}`);
+      if (!shaResp.ok) {
+        if (shaResp.status === 401 || shaResp.status === 403) {
+          throw new Error("Token 无效或无权限，请重新生成");
+        }
+        if (shaResp.status !== 404) {
+          throw new Error(`GitHub 请求失败 (${shaResp.status})`);
+        }
       }
       const shaData = await shaResp.json().catch(() => ({}));
       const sha = shaData.sha;
@@ -226,7 +232,10 @@ export function EditorPage() {
       );
       if (!putResp.ok) {
         const err = await putResp.json().catch(() => ({}));
-        throw new Error(err.message || `GitHub API: ${putResp.status}`);
+        if (putResp.status === 409) {
+          throw new Error("文件冲突，请先刷新页面再试");
+        }
+        throw new Error(err.message || `提交失败 (${putResp.status})`);
       }
 
       updateChanges({ profile: null, gyms: [], removedGyms: [], added: [], edited: [], deleted: [] });
@@ -234,8 +243,9 @@ export function EditorPage() {
 
       loadClimbingLog().then(setData);
     } catch (e: unknown) {
-      console.error("Publish failed:", e);
-      setMessage({ type: "err", text: "发布失败，请检查 Token 权限或网络连接" });
+      const errMsg = e instanceof Error ? e.message : "未知错误";
+      console.error("Publish failed:", errMsg);
+      setMessage({ type: "err", text: `发布失败: ${errMsg}` });
     } finally {
       setPublishing(false);
     }
@@ -305,6 +315,30 @@ export function EditorPage() {
           placeholder="github_pat_..."
           className="w-full rounded-xl border border-stone-700 bg-stone-950 px-3 py-2.5 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
         />
+        <div className="flex gap-2 mt-2">
+          <button
+            type="button"
+            onClick={async () => {
+              if (!token) return;
+              try {
+                const resp = await fetch("https://api.github.com/user", {
+                  headers: { Authorization: `Bearer ${token}` },
+                });
+                if (resp.ok) {
+                  setMessage({ type: "ok", text: "Token 有效 ✓" });
+                } else {
+                  setMessage({ type: "err", text: `Token 验证失败 (${resp.status})` });
+                }
+              } catch {
+                setMessage({ type: "err", text: "网络错误，无法连接 GitHub" });
+              }
+            }}
+            disabled={!token}
+            className="rounded-lg border border-stone-700 px-3 py-1 text-xs text-stone-400 hover:text-stone-200 disabled:opacity-50 transition-colors"
+          >
+            测试 Token
+          </button>
+        </div>
       </div>
 
       <ProfileEditor
