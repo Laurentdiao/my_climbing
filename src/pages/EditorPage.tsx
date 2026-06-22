@@ -368,7 +368,7 @@ export function EditorPage() {
 
       {editing && (
         <SessionEditorForm
-          gyms={data?.gyms || []}
+          gyms={[...(data?.gyms || []), ...changes.gyms].filter(g => !changes.removedGyms.includes(g.id))}
           initial={editing.entries.length > 0 ? editing : null}
           onSave={handleSave}
           onCancel={() => setEditing(null)}
