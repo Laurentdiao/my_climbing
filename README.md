@@ -57,6 +57,20 @@ GitHub Actions will automatically build and deploy to GitHub Pages.
 
 ## Data Fields
 
+### siteTitle
+
+Global site title shown in the top nav bar. Shared by all climbers.
+
+### User
+
+| Field | Description |
+|-------|-------------|
+| id | Stable unique ID (lowercase letters, numbers, hyphens). Renaming a user does **not** change the id, so all their sessions auto-sync. |
+| name | Display name / nickname, supports Chinese characters |
+| bio | Personal bio (optional) |
+| homeGym | Home gym id, references `gyms[].id` (optional) |
+| color | UI tag color |
+
 ### Session
 
 | Field | Description |
@@ -64,8 +78,8 @@ GitHub Actions will automatically build and deploy to GitHub Pages.
 | id | Unique ID, e.g. `YYYY-MM-DD-gym-name` |
 | climbedAt | Date in `YYYY-MM-DD` format |
 | gymId | References a gym in `gyms[]` |
-| discipline | `bouldering` or `lead` |
-| title | Optional session title |
+| userId | References a climber in `users[]` |
+| timeOfDay | `morning`, `afternoon`, or `evening` |
 | notes | Optional public notes |
 | entries | Array of problem entries |
 
@@ -73,10 +87,12 @@ GitHub Actions will automatically build and deploy to GitHub Pages.
 
 | Field | Description |
 |-------|-------------|
-| gradeLabel | Display grade, e.g. `V3` |
+| id | Unique entry ID |
+| discipline | `bouldering` or `lead` |
+| gradeLabel | Display grade, e.g. `V3` or `5.10a` |
 | gradeRank | Numeric rank for sorting |
-| result | `flash`, `sent`, `repeat`, `attempted`, `project` |
 | quantity | Number of problems (use for batches) |
+| notes | Entry notes (optional) |
 | videoUrl | External video link (optional) |
 | videoPlatform | `xiaohongshu`, `bilibili`, etc. (optional) |
 | videoTitle | Video title (optional) |

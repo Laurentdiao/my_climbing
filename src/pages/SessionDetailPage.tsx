@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import type { ClimbingLog } from "../features/climbing/domain/types";
 import { loadClimbingLog } from "../features/climbing/adapters/staticDataRepository";
-import { getGymById } from "../features/climbing/adapters/staticDataRepository";
+import { getGymById, getUserById } from "../features/climbing/adapters/staticDataRepository";
 import { getSessionById } from "../features/climbing/domain/stats";
 import { SessionDetail } from "../features/climbing/components/SessionDetail";
 
@@ -37,6 +37,7 @@ export function SessionDetailPage() {
       <SessionDetail
         session={session}
         gym={getGymById(data, session.gymId)}
+        user={getUserById(data, session.userId)}
       />
     </div>
   );

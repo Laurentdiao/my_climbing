@@ -73,12 +73,7 @@ src/data/climbing-log.json
 
 ```json
 {
-  "profile": {
-    "displayName": "Your Name",
-    "siteTitle": "Climbing Log",
-    "bio": "",
-    "homeGym": ""
-  },
+  "siteTitle": "攀岩记录",
   "gyms": [
     {
       "id": "gym-1",
@@ -87,13 +82,22 @@ src/data/climbing-log.json
       "color": "#2563eb"
     }
   ],
+  "users": [
+    {
+      "id": "user-1",
+      "name": "攀爬者昵称（支持中文）",
+      "bio": "个人简介",
+      "homeGym": "gym-1",
+      "color": "#3b82f6"
+    }
+  ],
   "sessions": [
     {
       "id": "2026-06-21-gym-1",
       "climbedAt": "2026-06-21",
       "gymId": "gym-1",
-      "discipline": "bouldering",
-      "title": "周末抱石",
+      "userId": "user-1",
+      "timeOfDay": "evening",
       "notes": "",
       "entries": [
         {
@@ -101,8 +105,6 @@ src/data/climbing-log.json
           "discipline": "bouldering",
           "gradeLabel": "V3",
           "gradeRank": 30,
-          "result": "sent",
-          "attempts": 3,
           "quantity": 1,
           "notes": "",
           "videoUrl": "https://www.xiaohongshu.com/...",
@@ -117,12 +119,9 @@ src/data/climbing-log.json
 
 ## 字段规则
 
-### Profile
+### siteTitle
 
-- `displayName`: 公开显示名。
-- `siteTitle`: 网站标题。
-- `bio`: 简介，可为空。
-- `homeGym`: 常去岩馆，可为空。
+- 全局网站标题，显示在顶部导航栏，所有攀爬者共用，不属于任何个人。
 
 ### Gym
 
@@ -131,23 +130,32 @@ src/data/climbing-log.json
 - `city`: 城市，可为空。
 - `color`: UI 标签颜色，可为空。
 
+### User
+
+- `id`: 稳定唯一 ID，使用小写字母、数字和连字符；中文用户名会通过 slug 化 + 时间戳生成安全 id。**修改昵称不会改变 id**，因此所有引用该用户的记录会自动同步。
+- `name`: 攀爬者昵称，支持中文，可随时修改。
+- `bio`: 个人简介，可为空。每个攀爬者独立。
+- `homeGym`: 常去岩馆 id（引用 `gyms[].id`），可为空。每个攀爬者独立。
+- `color`: UI 标签颜色，可为空。
+
 ### Session
 
 - `id`: 稳定唯一 ID，建议 `YYYY-MM-DD-short-name`。
 - `climbedAt`: ISO 日期。
 - `gymId`: 引用 `gyms[].id`。
-- `discipline`: `bouldering` 或 `lead`。
-- `title`: 场次标题，可为空。
+- `userId`: 引用 `users[].id`，表示本场训练的攀爬者。
+- `timeOfDay`: `morning`、`afternoon`、`evening`。
 - `notes`: 公开备注，可为空。
 - `entries`: 线路记录数组。
 
 ### Entry
 
-- `gradeLabel`: 展示难度，如 `V2`、`V3`、`粉色`。
+- `id`: 线路记录唯一 ID。
+- `discipline`: `bouldering` 或 `lead`。
+- `gradeLabel`: 展示难度，如 `V2`、`V3`。
 - `gradeRank`: 数字排序值，用于统计趋势。
-- `result`: `flash`、`sent`、`repeat`、`attempted`、`project`。
-- `attempts`: 尝试次数，可为空。
 - `quantity`: 线路数量，必须大于 0。
+- `notes`: 备注，可为空。
 - `videoUrl`: 外部视频链接，可为空。
 - `videoPlatform`: `xiaohongshu`、`wechat`、`bilibili`、`douyin`、`other`，可为空。
 - `videoTitle`: 视频标题，可为空。
@@ -197,13 +205,13 @@ src/
 ## 页面结构
 
 - `/`：个人主页，显示简介、核心统计、最近场次。
-- `/sessions`：训练时间线，支持按岩馆、项目、难度、结果筛选。
+- `/sessions`：训练时间线，支持按攀爬者、岩馆、项目、难度筛选。
 - `/sessions/:sessionId`：单场次详情，显示线路列表、数量、备注和外部视频入口。
-- `/stats`：统计页，显示月度趋势、难度分布、岩馆分布、完成率、最高完成难度。
+- `/stats`：统计页，可按攀爬者筛选，显示月度趋势、难度分布、岩馆分布。
 
 可选：
 
-- `/editor`：本地辅助编辑器。只写入浏览器 localStorage，并提供“导出 JSON”按钮；它不能也不应该在线写仓库。
+- `/editor`：本地辅助编辑器。管理攀爬者和岩馆，新增/编辑/删除训练记录，写入浏览器 localStorage，并提供"发布到 GitHub"按钮。
 
 ## 统计规则
 

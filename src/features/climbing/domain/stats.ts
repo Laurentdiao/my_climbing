@@ -115,6 +115,7 @@ export function filterSessions(
   data: ClimbingLog,
   filters: {
     gymId?: string;
+    userId?: string;
     discipline?: string;
     minGradeRank?: number;
     maxGradeRank?: number;
@@ -124,6 +125,9 @@ export function filterSessions(
 
   if (filters.gymId) {
     sessions = sessions.filter((s) => s.gymId === filters.gymId);
+  }
+  if (filters.userId) {
+    sessions = sessions.filter((s) => s.userId === filters.userId);
   }
   if (filters.discipline) {
     sessions = sessions.filter((s) =>

@@ -4,15 +4,13 @@ import type { ClimbingLog, Gym } from "../features/climbing/domain/types";
 import { EditorPage } from "./EditorPage";
 
 const sampleData: ClimbingLog = {
-  profile: {
-    displayName: "Test",
-    siteTitle: "Test Log",
-    bio: "",
-    homeGym: "",
-  },
+  siteTitle: "Test Log",
   gyms: [
     { id: "gym-a", name: "Gym A", city: "", color: "#84cc16" },
     { id: "gym-b", name: "Gym B", city: "", color: "#f97316" },
+  ],
+  users: [
+    { id: "user-a", name: "Alice", bio: "", homeGym: "", color: "#3b82f6" },
   ],
   sessions: [],
 };
@@ -52,8 +50,9 @@ describe("EditorPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "新建记录" }));
 
     const selects = screen.getAllByRole("combobox") as HTMLSelectElement[];
-    const disciplineSelect = selects[2];
-    const gradeSelect = selects[3];
+    // form combobox order: [0] user, [1] gym, [2] timeOfDay, [3] discipline, [4] grade
+    const disciplineSelect = selects[3];
+    const gradeSelect = selects[4];
 
     fireEvent.change(disciplineSelect, { target: { value: "lead" } });
     expect(gradeSelect.value).toBe("5.9");

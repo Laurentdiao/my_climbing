@@ -16,21 +16,21 @@ import {
 } from "./grade";
 
 const sampleData: ClimbingLog = {
-  profile: {
-    displayName: "Test",
-    siteTitle: "Test Log",
-    bio: "",
-    homeGym: "",
-  },
+  siteTitle: "Test Log",
   gyms: [
     { id: "gym-a", name: "Gym A", city: "", color: "#000" },
     { id: "gym-b", name: "Gym B", city: "", color: "#111" },
+  ],
+  users: [
+    { id: "user-a", name: "Alice", bio: "", homeGym: "", color: "#3b82f6" },
+    { id: "user-b", name: "Bob", bio: "", homeGym: "", color: "#84cc16" },
   ],
   sessions: [
     {
       id: "2026-01-01-gym-a",
       climbedAt: "2026-01-01",
       gymId: "gym-a",
+      userId: "user-a",
       timeOfDay: "evening",
       notes: "",
       entries: [
@@ -62,6 +62,7 @@ const sampleData: ClimbingLog = {
       id: "2026-02-15-gym-b",
       climbedAt: "2026-02-15",
       gymId: "gym-b",
+      userId: "user-b",
       timeOfDay: "afternoon",
       notes: "",
       entries: [
@@ -134,6 +135,12 @@ describe("filterSessions", () => {
     const result = filterSessions(sampleData, { gymId: "gym-a" });
     expect(result).toHaveLength(1);
     expect(result[0].id).toBe("2026-01-01-gym-a");
+  });
+
+  it("filters by userId", () => {
+    const result = filterSessions(sampleData, { userId: "user-b" });
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("2026-02-15-gym-b");
   });
 
   it("filters by min grade rank", () => {

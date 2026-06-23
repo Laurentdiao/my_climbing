@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import type { ClimbingLog, Session, Entry, Gym, Profile } from "../features/climbing/domain/types";
+import type { ClimbingLog, Session, Entry, Gym, User } from "../features/climbing/domain/types";
 import { loadClimbingLog } from "../features/climbing/adapters/staticDataRepository";
 import { getGymById } from "../features/climbing/adapters/staticDataRepository";
 import { getSessionEntriesTotal } from "../features/climbing/domain/stats";
@@ -11,9 +11,13 @@ import {
 import { climbingLogSchema } from "../features/climbing/domain/validators";
 import {
   createGymId,
+  createUserId,
   ensureSafeGymIds,
+  ensureSafeUserIds,
   normalizeLogGymIds,
+  normalizeLogUserIds,
   remapSessionGymIds,
+  remapSessionUserIds,
 } from "../features/climbing/domain/ids";
 
 const LS_CHANGES_KEY = "climbing-local-changes";
@@ -33,23 +37,43 @@ function toBase64(str: string): string {
 }
 
 interface LocalChanges {
-  profile: Profile | null;
+  siteTitle: string | null;
   gyms: Gym[];
+  users: User[];
+  editedUsers: User[];
   removedGyms: string[];
+  removedUsers: string[];
   added: Session[];
   edited: Session[];
   deleted: string[];
 }
 
+function emptyChanges(): LocalChanges {
+  return {
+    siteTitle: null,
+    gyms: [],
+    users: [],
+    editedUsers: [],
+    removedGyms: [],
+    removedUsers: [],
+    added: [],
+    edited: [],
+    deleted: [],
+  };
+}
+
 function loadChanges(): LocalChanges {
   try {
     const raw = localStorage.getItem(LS_CHANGES_KEY);
-    if (!raw) return { profile: null, gyms: [], removedGyms: [], added: [], edited: [], deleted: [] };
+    if (!raw) return emptyChanges();
     const parsed = JSON.parse(raw);
     const changes = normalizeLocalChanges({
-      profile: parsed.profile || null,
+      siteTitle: parsed.siteTitle ?? null,
       gyms: parsed.gyms || [],
+      users: parsed.users || [],
+      editedUsers: parsed.editedUsers || [],
       removedGyms: parsed.removedGyms || [],
+      removedUsers: parsed.removedUsers || [],
       added: parsed.added || [],
       edited: parsed.edited || [],
       deleted: parsed.deleted || [],
@@ -57,19 +81,24 @@ function loadChanges(): LocalChanges {
     saveChanges(changes);
     return changes;
   } catch {
-    return { profile: null, gyms: [], removedGyms: [], added: [], edited: [], deleted: [] };
+    return emptyChanges();
   }
 }
 
 function normalizeLocalChanges(changes: LocalChanges): LocalChanges {
-  const { gyms, idMap, changed } = ensureSafeGymIds(changes.gyms);
-  if (!changed) return changes;
+  const { gyms, idMap: gymIdMap, changed: gymChanged } = ensureSafeGymIds(changes.gyms);
+  const { users, idMap: userIdMap, changed: userChanged } = ensureSafeUserIds(changes.users);
+  if (!gymChanged && !userChanged) return changes;
+
+  const remap = (sessions: Session[]) =>
+    remapSessionUserIds(remapSessionGymIds(sessions, gymIdMap), userIdMap);
 
   return {
     ...changes,
     gyms,
-    added: remapSessionGymIds(changes.added, idMap),
-    edited: remapSessionGymIds(changes.edited, idMap),
+    users,
+    added: remap(changes.added),
+    edited: remap(changes.edited),
   };
 }
 
@@ -148,18 +177,19 @@ export function EditorPage() {
   }, []);
 
   const discardChanges = useCallback(() => {
-    updateChanges({ profile: null, gyms: [], removedGyms: [], added: [], edited: [], deleted: [] });
+    updateChanges(emptyChanges());
     setMessage({ type: "ok", text: "所有本地修改已撤销" });
   }, [updateChanges]);
 
   const changedCount =
-    (changes.profile ? 1 : 0) +
+    (changes.siteTitle !== null ? 1 : 0) +
     changes.gyms.length + changes.removedGyms.length +
+    changes.users.length + changes.editedUsers.length + changes.removedUsers.length +
     changes.added.length + changes.edited.length + changes.deleted.length;
 
-  const updateProfile = useCallback(
-    (profile: Profile) => {
-      updateChanges({ ...changes, profile });
+  const updateSiteTitle = useCallback(
+    (siteTitle: string) => {
+      updateChanges({ ...changes, siteTitle });
     },
     [changes, updateChanges],
   );
@@ -188,6 +218,57 @@ export function EditorPage() {
     [changes, updateChanges],
   );
 
+  const addUser = useCallback(
+    (user: User) => {
+      updateChanges({ ...changes, users: [...changes.users, user] });
+    },
+    [changes, updateChanges],
+  );
+
+  const removeUser = useCallback(
+    (userId: string) => {
+      const isNew = changes.users.some((u) => u.id === userId);
+      if (isNew) {
+        updateChanges({
+          ...changes,
+          users: changes.users.filter((u) => u.id !== userId),
+          editedUsers: changes.editedUsers.filter((u) => u.id !== userId),
+        });
+      } else {
+        updateChanges({
+          ...changes,
+          removedUsers: changes.removedUsers.includes(userId)
+            ? changes.removedUsers
+            : [...changes.removedUsers, userId],
+          editedUsers: changes.editedUsers.filter((u) => u.id !== userId),
+        });
+      }
+    },
+    [changes, updateChanges],
+  );
+
+  const editUser = useCallback(
+    (user: User) => {
+      // 编辑已有用户（包括已发布的和本地新增的）：按 id 替换
+      const isNew = changes.users.some((u) => u.id === user.id);
+      if (isNew) {
+        updateChanges({
+          ...changes,
+          users: changes.users.map((u) => (u.id === user.id ? user : u)),
+        });
+      } else {
+        updateChanges({
+          ...changes,
+          editedUsers: [
+            ...changes.editedUsers.filter((u) => u.id !== user.id),
+            user,
+          ],
+        });
+      }
+    },
+    [changes, updateChanges],
+  );
+
   const publish = useCallback(async () => {
     if (!data) return;
     if (!token) {
@@ -204,15 +285,25 @@ export function EditorPage() {
         (s) => !deletedIds.has(s.id) && !editedIds.has(s.id),
       );
 
-      const merged: ClimbingLog = normalizeLogGymIds({
+      // 合并用户：已发布用户应用 editedUsers 覆盖，过滤掉已删除，再追加新增
+      const editedUserMap = new Map(changes.editedUsers.map((u) => [u.id, u]));
+      const mergedUsers: User[] = [
+        ...data.users
+          .filter((u) => !changes.removedUsers.includes(u.id))
+          .map((u) => editedUserMap.get(u.id) || u),
+        ...changes.users,
+      ];
+
+      const merged: ClimbingLog = normalizeLogUserIds(normalizeLogGymIds({
         ...data,
-        profile: changes.profile || data.profile,
+        siteTitle: changes.siteTitle ?? data.siteTitle,
         gyms: [
           ...data.gyms.filter((g) => !changes.removedGyms.includes(g.id)),
           ...changes.gyms,
         ],
+        users: mergedUsers,
         sessions: [...changes.added, ...changes.edited, ...baseSessions],
-      });
+      }));
 
       const validation = climbingLogSchema.safeParse(merged);
       if (!validation.success) {
@@ -262,7 +353,7 @@ export function EditorPage() {
         throw new Error(err.message || `提交失败 (${putResp.status})`);
       }
 
-      updateChanges({ profile: null, gyms: [], removedGyms: [], added: [], edited: [], deleted: [] });
+      updateChanges(emptyChanges());
       setMessage({ type: "ok", text: "发布成功！1-2 分钟后刷新公开页面可见。" });
 
       loadClimbingLog().then(setData);
@@ -278,6 +369,22 @@ export function EditorPage() {
   const isDeleted = (id: string) => changes.deleted.includes(id);
 
   const allSessions = buildSessionList(data?.sessions || [], changes);
+  // 合并后的全量用户列表（供下拉和名称显示使用）
+  const allUsers: User[] = (() => {
+    const editedMap = new Map(changes.editedUsers.map((u) => [u.id, u]));
+    return [
+      ...(data?.users || []).map((u) => editedMap.get(u.id) || u),
+      ...changes.users,
+    ].filter((u) => !changes.removedUsers.includes(u.id));
+  })();
+
+  const getUserName = (userId: string) =>
+    allUsers.find((u) => u.id === userId)?.name || userId;
+
+  const allGyms = [
+    ...(data?.gyms || []),
+    ...changes.gyms,
+  ].filter((g) => !changes.removedGyms.includes(g.id));
 
   return (
     <div className="space-y-5 py-3">
@@ -365,10 +472,10 @@ export function EditorPage() {
         </div>
       </div>
 
-      <ProfileEditor
-        profile={changes.profile || data?.profile || null}
-        onSave={updateProfile}
-        isDirty={!!changes.profile}
+      <SiteTitleEditor
+        siteTitle={changes.siteTitle ?? data?.siteTitle ?? ""}
+        onSave={updateSiteTitle}
+        isDirty={changes.siteTitle !== null}
       />
 
       <GymManager
@@ -377,6 +484,17 @@ export function EditorPage() {
         removedGymIds={changes.removedGyms}
         onAdd={addGym}
         onRemove={removeGym}
+      />
+
+      <UserManager
+        users={data?.users || []}
+        addedUsers={changes.users}
+        editedUsers={changes.editedUsers}
+        removedUserIds={changes.removedUsers}
+        gyms={allGyms}
+        onAdd={addUser}
+        onRemove={removeUser}
+        onEdit={editUser}
       />
 
       <div className="flex flex-wrap items-center gap-2">
@@ -393,7 +511,8 @@ export function EditorPage() {
               handleEdit({
                 id: `new-${Date.now()}`,
                 climbedAt: todayStr(),
-                gymId: data?.gyms[0]?.id || "",
+                gymId: allGyms[0]?.id || "",
+                userId: allUsers[0]?.id || "",
                 timeOfDay: "evening",
                 notes: "",
                 entries: [],
@@ -407,9 +526,12 @@ export function EditorPage() {
         {changedCount > 0 && (
           <>
             <span className="text-xs text-stone-500">
-              {changes.profile && "~个人信息 "}
+              {changes.siteTitle !== null && "~网站标题 "}
               {changes.gyms.length > 0 && `+${changes.gyms.length}岩馆 `}
               {changes.removedGyms.length > 0 && `-${changes.removedGyms.length}岩馆 `}
+              {changes.users.length > 0 && `+${changes.users.length}攀爬者 `}
+              {changes.editedUsers.length > 0 && `~${changes.editedUsers.length}攀爬者 `}
+              {changes.removedUsers.length > 0 && `-${changes.removedUsers.length}攀爬者 `}
               {changes.added.length > 0 && `+${changes.added.length}新增 `}
               {changes.edited.length > 0 && `~${changes.edited.length}修改 `}
               {changes.deleted.length > 0 && `-${changes.deleted.length}删除 `}
@@ -426,7 +548,8 @@ export function EditorPage() {
 
       {editing && (
         <SessionEditorForm
-          gyms={[...(data?.gyms || []), ...changes.gyms].filter(g => !changes.removedGyms.includes(g.id))}
+          gyms={allGyms}
+          users={allUsers}
           initial={editing.entries.length > 0 ? editing : null}
           onSave={handleSave}
           onCancel={() => setEditing(null)}
@@ -473,6 +596,7 @@ export function EditorPage() {
                     </p>
                     <p className="text-xs text-stone-500 mt-0.5">
                       {session.climbedAt}
+                      {` · ${getUserName(session.userId)}`}
                       {session.timeOfDay && ` · ${session.timeOfDay}`}
                       {" · "}{session.entries.length} 组 · {getSessionEntriesTotal(session.entries)} 条线
                     </p>
@@ -529,16 +653,19 @@ function buildSessionList(
 
 function SessionEditorForm({
   gyms,
+  users,
   initial,
   onSave,
   onCancel,
 }: {
   gyms: Gym[];
+  users: User[];
   initial: Session | null;
   onSave: (session: Session, isNew: boolean) => void;
   onCancel: () => void;
 }) {
   const isNew = !initial || initial.entries.length === 0;
+  const [userId, setUserId] = useState(initial?.userId || users[0]?.id || "");
   const [gymId, setGymId] = useState(initial?.gymId || gyms[0]?.id || "");
   const [climbedAt, setClimbedAt] = useState(initial?.climbedAt || todayStr());
   const [timeOfDay, setTimeOfDay] = useState(initial?.timeOfDay || "evening");
@@ -572,6 +699,7 @@ function SessionEditorForm({
       id,
       climbedAt,
       gymId,
+      userId,
       timeOfDay,
       notes,
       entries,
@@ -599,6 +727,18 @@ function SessionEditorForm({
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="min-w-0">
+          <label className="block text-xs text-stone-500 mb-1">攀爬者</label>
+          <select
+            value={userId}
+            onChange={(e) => setUserId(e.target.value)}
+            className="w-full min-w-0 rounded-xl border border-stone-700 bg-stone-950 px-3 py-2.5 text-sm text-stone-200 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
+          >
+            {users.map((u) => (
+              <option key={u.id} value={u.id}>{u.name}</option>
+            ))}
+          </select>
+        </div>
         <div className="min-w-0">
           <label className="block text-xs text-stone-500 mb-1">岩馆</label>
           <select
@@ -815,27 +955,20 @@ function todayStr(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function ProfileEditor({
-  profile,
+function SiteTitleEditor({
+  siteTitle,
   onSave,
   isDirty,
 }: {
-  profile: Profile | null;
-  onSave: (p: Profile) => void;
+  siteTitle: string;
+  onSave: (title: string) => void;
   isDirty: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const [displayName, setDisplayName] = useState(profile?.displayName || "");
-  const [siteTitle, setSiteTitle] = useState(profile?.siteTitle || "");
-  const [bio, setBio] = useState(profile?.bio || "");
+  const [title, setTitle] = useState(siteTitle);
 
   function handleSave() {
-    onSave({
-      displayName: displayName || profile?.displayName || "Climber",
-      siteTitle: siteTitle || profile?.siteTitle || "攀岩记录",
-      bio,
-      homeGym: profile?.homeGym || "",
-    });
+    onSave(title.trim() || siteTitle || "攀岩记录");
     setOpen(false);
   }
 
@@ -843,7 +976,7 @@ function ProfileEditor({
     <div className="rounded-2xl border border-stone-800 bg-stone-900/65 p-4 space-y-3 shadow-[0_18px_55px_rgba(0,0,0,0.14)]">
       <div className="flex items-center justify-between">
         <p className="text-sm font-semibold text-stone-300">
-          个人信息 {isDirty && <span className="text-xs text-amber-400">[已修改]</span>}
+          网站标题 {isDirty && <span className="text-xs text-amber-400">[已修改]</span>}
         </p>
         <button
           onClick={() => setOpen(!open)}
@@ -852,35 +985,21 @@ function ProfileEditor({
           {open ? "收起" : "编辑"}
         </button>
       </div>
+      {!open && (
+        <p className="text-sm text-stone-400">{siteTitle}</p>
+      )}
       {open && (
         <div className="space-y-3">
-          <div>
-            <label className="block text-xs text-stone-500 mb-1">名字</label>
-            <input
-              type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="你的名字"
-              className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
-            />
-          </div>
+          <p className="text-xs leading-relaxed text-stone-500">
+            这是显示在顶部导航栏的网站标题，所有攀爬者共用，不属于任何个人。
+          </p>
           <div>
             <label className="block text-xs text-stone-500 mb-1">网站标题</label>
             <input
               type="text"
-              value={siteTitle}
-              onChange={(e) => setSiteTitle(e.target.value)}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               placeholder="如：攀岩记录"
-              className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-stone-500 mb-1">自我介绍</label>
-            <textarea
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              rows={2}
-              placeholder="简短介绍..."
               className="w-full rounded-lg border border-stone-700 bg-stone-950 px-3 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none"
             />
           </div>
@@ -888,7 +1007,7 @@ function ProfileEditor({
             onClick={handleSave}
             className="rounded-lg bg-lime-500 px-4 py-2 text-sm font-semibold text-stone-950 hover:bg-lime-400 transition-colors"
           >
-            保存个人信息
+            保存网站标题
           </button>
         </div>
       )}
@@ -916,6 +1035,10 @@ function GymManager({
 
   const COLORS = ["#84cc16", "#f97316", "#3b82f6", "#8b5cf6", "#ec4899", "#14b8a6"];
 
+  const allGyms = [...gyms, ...addedGyms].filter(
+    (g) => !removedGymIds.includes(g.id),
+  );
+
   function handleAdd() {
     if (!name.trim()) return;
     const id = createGymId(name, { existingIds: allGyms.map((g) => g.id) });
@@ -924,10 +1047,6 @@ function GymManager({
     setCity("");
     setColor("#84cc16");
   }
-
-  const allGyms = [...gyms, ...addedGyms].filter(
-    (g) => !removedGymIds.includes(g.id),
-  );
 
   return (
     <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-4 space-y-3">
@@ -1035,6 +1154,280 @@ function GymManager({
           >
             添加岩馆
           </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function UserManager({
+  users,
+  addedUsers,
+  editedUsers,
+  removedUserIds,
+  gyms,
+  onAdd,
+  onRemove,
+  onEdit,
+}: {
+  users: User[];
+  addedUsers: User[];
+  editedUsers: User[];
+  removedUserIds: string[];
+  gyms: Gym[];
+  onAdd: (user: User) => void;
+  onRemove: (userId: string) => void;
+  onEdit: (user: User) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [color, setColor] = useState("#3b82f6");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editBio, setEditBio] = useState("");
+  const [editHomeGym, setEditHomeGym] = useState("");
+  const [editColor, setEditColor] = useState("#3b82f6");
+
+  const COLORS = ["#3b82f6", "#84cc16", "#f97316", "#8b5cf6", "#ec4899", "#14b8a6"];
+
+  const editedMap = new Map(editedUsers.map((u) => [u.id, u]));
+  const allUsers: User[] = [
+    ...users.map((u) => editedMap.get(u.id) || u),
+    ...addedUsers,
+  ].filter((u) => !removedUserIds.includes(u.id));
+
+  function handleAdd() {
+    if (!name.trim()) return;
+    const id = createUserId(name, { existingIds: allUsers.map((u) => u.id) });
+    onAdd({ id, name: name.trim(), bio: "", homeGym: "", color });
+    setName("");
+    setColor("#3b82f6");
+  }
+
+  function startEdit(u: User) {
+    setEditingId(u.id);
+    setEditName(u.name);
+    setEditBio(u.bio || "");
+    setEditHomeGym(u.homeGym || "");
+    setEditColor(u.color || "#3b82f6");
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setEditName("");
+    setEditBio("");
+    setEditHomeGym("");
+    setEditColor("#3b82f6");
+  }
+
+  function saveEdit(u: User) {
+    if (!editName.trim()) return;
+    onEdit({
+      ...u,
+      name: editName.trim(),
+      bio: editBio,
+      homeGym: editHomeGym,
+      color: editColor,
+    });
+    cancelEdit();
+  }
+
+  const isEdited = (id: string) => editedUsers.some((u) => u.id === id);
+
+  return (
+    <div className="rounded-xl border border-stone-800 bg-stone-900/60 p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-semibold text-stone-300">
+          攀爬者管理 {(addedUsers.length > 0 || editedUsers.length > 0 || removedUserIds.length > 0) && <span className="text-xs text-amber-400">[已修改]</span>}
+        </p>
+        <button
+          onClick={() => setOpen(!open)}
+          className="text-xs text-lime-400 hover:text-lime-300"
+        >
+          {open ? "收起" : "管理"}
+        </button>
+      </div>
+
+      {!open && (
+        <div className="flex flex-wrap gap-1.5">
+          {allUsers.map((u) => (
+            <span
+              key={u.id}
+              className="inline-flex items-center gap-1 rounded-full border border-stone-700 px-2.5 py-1 text-xs text-stone-300"
+            >
+              <span
+                className="inline-block h-2 w-2 rounded-full"
+                style={{ backgroundColor: u.color }}
+              />
+              {u.name}
+              {isEdited(u.id) && <span className="text-amber-400">~</span>}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {open && (
+        <div className="space-y-3">
+          <div className="space-y-2">
+            {allUsers.map((u) => (
+              <div
+                key={u.id}
+                className="rounded-xl border border-stone-800 bg-stone-950 px-3 py-2.5 space-y-2"
+              >
+                {editingId === u.id ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: editColor }}
+                      />
+                      <span className="text-xs text-stone-500 truncate">编辑 {u.name}</span>
+                      {addedUsers.some((a) => a.id === u.id) && (
+                        <span className="shrink-0 text-lime-400">[新增]</span>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-xs text-stone-500 mb-0.5">昵称</label>
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        placeholder="攀爬者昵称（支持中文）"
+                        className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-950 px-2.5 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-stone-500 mb-0.5">自我介绍</label>
+                      <textarea
+                        value={editBio}
+                        onChange={(e) => setEditBio(e.target.value)}
+                        rows={2}
+                        placeholder="简短介绍..."
+                        className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-950 px-2.5 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-stone-500 mb-0.5">常去岩馆</label>
+                      <select
+                        value={editHomeGym}
+                        onChange={(e) => setEditHomeGym(e.target.value)}
+                        className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-950 px-2.5 py-2 text-sm text-stone-200 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
+                      >
+                        <option value="">不指定</option>
+                        {gyms.map((g) => (
+                          <option key={g.id} value={g.id}>{g.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs text-stone-500 mb-1">颜色</label>
+                      <div className="flex gap-1.5">
+                        {COLORS.map((c) => (
+                          <button
+                            key={c}
+                            type="button"
+                            onClick={() => setEditColor(c)}
+                            className={`h-6 w-6 rounded-full border-2 transition-all ${editColor === c ? "border-white scale-110" : "border-transparent"}`}
+                            style={{ backgroundColor: c }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => saveEdit(u)}
+                        disabled={!editName.trim()}
+                        className="rounded-lg bg-lime-500 px-3 py-1.5 text-xs font-semibold text-stone-950 hover:bg-lime-400 disabled:opacity-50"
+                      >
+                        保存
+                      </button>
+                      <button
+                        type="button"
+                        onClick={cancelEdit}
+                        className="rounded-lg border border-stone-700 px-3 py-1.5 text-xs text-stone-400 hover:text-stone-200"
+                      >
+                        取消
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex min-w-0 items-center gap-2 text-xs text-stone-300">
+                      <span
+                        className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: u.color }}
+                      />
+                      <span className="truncate">{u.name}</span>
+                      {u.homeGym && (
+                        <span className="text-stone-500">
+                          · {gyms.find((g) => g.id === u.homeGym)?.name || u.homeGym}
+                        </span>
+                      )}
+                      {addedUsers.some((a) => a.id === u.id) && (
+                        <span className="shrink-0 text-lime-400">[新增]</span>
+                      )}
+                      {isEdited(u.id) && (
+                        <span className="shrink-0 text-amber-400">[已修改]</span>
+                      )}
+                    </span>
+                    <div className="flex gap-2 shrink-0">
+                      <button
+                        onClick={() => startEdit(u)}
+                        className="text-xs text-stone-500 hover:text-lime-400"
+                      >
+                        编辑
+                      </button>
+                      <button
+                        onClick={() => onRemove(u.id)}
+                        className="text-xs text-stone-500 hover:text-red-400"
+                      >
+                        删除
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="border-t border-stone-800 pt-3 space-y-2">
+            <p className="text-xs text-stone-500">添加新攀爬者</p>
+            <div className="min-w-0">
+              <label className="block text-xs text-stone-500 mb-0.5">攀爬者名称</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="支持中文名，如 小王"
+                className="w-full min-w-0 rounded-lg border border-stone-700 bg-stone-950 px-2.5 py-2 text-sm text-stone-200 placeholder-stone-600 focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-400/15"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-stone-500 mb-1">颜色</label>
+              <div className="flex gap-1.5">
+                {COLORS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setColor(c)}
+                    className={`h-6 w-6 rounded-full border-2 transition-all ${color === c ? "border-white scale-110" : "border-transparent"}`}
+                    style={{ backgroundColor: c }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleAdd}
+              disabled={!name.trim()}
+              className="rounded-xl bg-lime-500 px-4 py-2.5 text-sm font-semibold text-stone-950 hover:bg-lime-400 disabled:opacity-50"
+            >
+              添加攀爬者
+            </button>
+          </div>
         </div>
       )}
     </div>

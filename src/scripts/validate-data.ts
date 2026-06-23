@@ -15,6 +15,7 @@ function validate() {
   const log = result.data;
 
   const gymIds = new Set(log.gyms.map((g) => g.id));
+  const userIds = new Set(log.users.map((u) => u.id));
   const entryIds = new Set<string>();
   const sessionIds = new Set<string>();
 
@@ -30,6 +31,13 @@ function validate() {
     if (!gymIds.has(session.gymId)) {
       console.warn(
         `⚠ Session ${session.id} references unknown gymId: ${session.gymId}`,
+      );
+      warnings++;
+    }
+
+    if (!userIds.has(session.userId)) {
+      console.warn(
+        `⚠ Session ${session.id} references unknown userId: ${session.userId}`,
       );
       warnings++;
     }
@@ -61,8 +69,9 @@ function validate() {
   );
 
   console.log("✅ Data validation passed:");
-  console.log(`   Profile: ${log.profile.displayName}`);
+  console.log(`   Site title: ${log.siteTitle}`);
   console.log(`   Gyms: ${log.gyms.length}`);
+  console.log(`   Users: ${log.users.length}`);
   console.log(`   Sessions: ${log.sessions.length}`);
   console.log(`   Entry records: ${totalEntries}`);
   console.log(`   Total problems (by quantity): ${totalQuantity}`);

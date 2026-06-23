@@ -1,4 +1,4 @@
-import type { Session, Gym } from "../domain/types";
+import type { Session, Gym, User } from "../domain/types";
 import { GradePill } from "./GradePill";
 import { VideoLink } from "./VideoLink";
 import { getSessionEntriesTotal, getSessionDisciplines } from "../domain/stats";
@@ -8,9 +8,10 @@ import { Link } from "react-router-dom";
 interface SessionDetailProps {
   session: Session;
   gym?: Gym;
+  user?: User;
 }
 
-export function SessionDetail({ session, gym }: SessionDetailProps) {
+export function SessionDetail({ session, gym, user }: SessionDetailProps) {
   const totalProblems = getSessionEntriesTotal(session.entries);
   const date = new Date(session.climbedAt);
   const dateStr = date.toLocaleDateString("zh-CN", {
@@ -48,6 +49,18 @@ export function SessionDetail({ session, gym }: SessionDetailProps) {
           )}
           <span className="text-stone-600">·</span>
           <span className="text-xs text-stone-500">{disciplineLabel}</span>
+          {user && (
+            <>
+              <span className="text-stone-600">·</span>
+              <span className="inline-flex items-center gap-1 text-xs text-stone-400">
+                <span
+                  className="inline-block h-1.5 w-1.5 rounded-full"
+                  style={{ backgroundColor: user.color || "#a3e635" }}
+                />
+                {user.name}
+              </span>
+            </>
+          )}
           <span className="text-stone-600">·</span>
           <span>{session.entries.length} 组 · {totalProblems} 条线路</span>
         </div>

@@ -7,17 +7,18 @@ export type VideoPlatform =
   | "douyin"
   | "other";
 
-export interface Profile {
-  displayName: string;
-  siteTitle: string;
-  bio: string;
-  homeGym: string;
-}
-
 export interface Gym {
   id: string;
   name: string;
   city: string;
+  color: string;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  bio: string;
+  homeGym: string;
   color: string;
 }
 
@@ -37,13 +38,15 @@ export interface Session {
   id: string;
   climbedAt: string;
   gymId: string;
+  userId: string;
   timeOfDay: string;
   notes: string;
   entries: Entry[];
 }
 
 export interface ClimbingLog {
-  profile: Profile;
+  siteTitle: string;
   gyms: Gym[];
+  users: User[];
   sessions: Session[];
 }

@@ -1,10 +1,5 @@
 {
-  "profile": {
-    "displayName": "Wiak",
-    "siteTitle": "攀岩记录",
-    "bio": "A beginner…",
-    "homeGym": "岩时攀岩"
-  },
+  "siteTitle": "攀岩记录",
   "gyms": [
     {
       "id": "yanshi",
@@ -25,11 +20,21 @@
       "color": "#84cc16"
     }
   ],
+  "users": [
+    {
+      "id": "user-default",
+      "name": "Wiak",
+      "bio": "A beginner…",
+      "homeGym": "yanshi",
+      "color": "#84cc16"
+    }
+  ],
   "sessions": [
     {
       "id": "2026-06-22-gym-mqpdnyip-local-1782145856769",
       "climbedAt": "2026-06-22",
       "gymId": "gym-mqpdnyip",
+      "userId": "user-default",
       "timeOfDay": "afternoon",
       "notes": "好累，偏硬馆但是爬得还挺满意的。",
       "entries": [

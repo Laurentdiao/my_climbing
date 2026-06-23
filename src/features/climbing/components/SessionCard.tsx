@@ -1,4 +1,4 @@
-import type { Session, Gym } from "../domain/types";
+import type { Session, Gym, User } from "../domain/types";
 import { GradePill } from "./GradePill";
 import { getSessionEntriesTotal, getSessionDisciplines } from "../domain/stats";
 import { TIME_OF_DAY_LABELS } from "../domain/constants";
@@ -7,9 +7,10 @@ import { Link } from "react-router-dom";
 interface SessionCardProps {
   session: Session;
   gym?: Gym;
+  user?: User;
 }
 
-export function SessionCard({ session, gym }: SessionCardProps) {
+export function SessionCard({ session, gym, user }: SessionCardProps) {
   const totalProblems = getSessionEntriesTotal(session.entries);
   const date = new Date(session.climbedAt);
   const dateStr = date.toLocaleDateString("zh-CN", {
@@ -32,6 +33,15 @@ export function SessionCard({ session, gym }: SessionCardProps) {
             {gymName}
           </h3>
           <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-stone-400">
+            {user && (
+              <span className="inline-flex items-center gap-1">
+                <span
+                  className="inline-block h-1.5 w-1.5 rounded-full"
+                  style={{ backgroundColor: user.color || "#a3e635" }}
+                />
+                {user.name}
+              </span>
+            )}
             <span>{dateStr} {weekDay}</span>
             <span className="rounded-full bg-stone-800 px-2 py-0.5 text-[11px] text-stone-200">{disciplineLabel}</span>
             {timeLabel && (
