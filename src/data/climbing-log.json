@@ -2,18 +2,6 @@
   "siteTitle": "攀岩记录",
   "gyms": [
     {
-      "id": "yanshi",
-      "name": "岩时攀岩",
-      "city": "上海",
-      "color": "#84cc16"
-    },
-    {
-      "id": "dyno",
-      "name": "Dyno Climbing",
-      "city": "上海",
-      "color": "#f97316"
-    },
-    {
       "id": "gym-mqpdnyip",
       "name": "香蕉攀岩（上地店）",
       "city": "北京",
@@ -25,8 +13,15 @@
       "id": "user-default",
       "name": "Wiak",
       "bio": "A beginner…",
-      "homeGym": "yanshi",
+      "homeGym": "gym-mqpdnyip",
       "color": "#84cc16"
+    },
+    {
+      "id": "anzai-mqqhnabb",
+      "name": "anzai",
+      "bio": "",
+      "homeGym": "",
+      "color": "#f97316"
     }
   ],
   "sessions": [
