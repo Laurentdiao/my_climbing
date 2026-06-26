@@ -6,6 +6,12 @@
       "name": "香蕉攀岩（上地店）",
       "city": "北京",
       "color": "#84cc16"
+    },
+    {
+      "id": "gym-mquvcey2",
+      "name": "北顶奥森",
+      "city": "北京",
+      "color": "#f97316"
     }
   ],
   "users": [
@@ -25,6 +31,49 @@
     }
   ],
   "sessions": [
+    {
+      "id": "2026-06-26-gym-mquvcey2-local-1782474657809",
+      "climbedAt": "2026-06-26",
+      "gymId": "gym-mquvcey2",
+      "userId": "user-default",
+      "timeOfDay": "afternoon",
+      "notes": "",
+      "entries": [
+        {
+          "id": "local-entry-1782474585856-44ys",
+          "discipline": "bouldering",
+          "gradeLabel": "V1",
+          "gradeRank": 10,
+          "quantity": 8,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": ""
+        },
+        {
+          "id": "local-entry-1782474632778-bqk9",
+          "discipline": "bouldering",
+          "gradeLabel": "V2",
+          "gradeRank": 20,
+          "quantity": 4,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": ""
+        },
+        {
+          "id": "local-entry-1782474651227-s539",
+          "discipline": "lead",
+          "gradeLabel": "5.9",
+          "gradeRank": 900,
+          "quantity": 1,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": ""
+        }
+      ]
+    },
     {
       "id": "2026-06-22-gym-mqpdnyip-local-1782218909312",
       "climbedAt": "2026-06-22",
