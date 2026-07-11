@@ -18,6 +18,12 @@
       "name": "青山攀石 清河",
       "city": "北京",
       "color": "#14b8a6"
+    },
+    {
+      "id": "gym-mrg0ijo5",
+      "name": "香蕉攀岩 后海汇",
+      "city": "深圳",
+      "color": "#14b8a6"
     }
   ],
   "users": [
@@ -37,6 +43,38 @@
     }
   ],
   "sessions": [
+    {
+      "id": "2026-07-10-gym-mrg0ijo5-local-1783753085504",
+      "climbedAt": "2026-07-10",
+      "gymId": "gym-mrg0ijo5",
+      "userId": "user-default",
+      "timeOfDay": "evening",
+      "notes": "",
+      "entries": [
+        {
+          "id": "local-entry-1783753061403-mjxz",
+          "discipline": "bouldering",
+          "gradeLabel": "V3",
+          "gradeRank": 30,
+          "quantity": 4,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": ""
+        },
+        {
+          "id": "local-entry-1783753080619-8x6m",
+          "discipline": "bouldering",
+          "gradeLabel": "V2",
+          "gradeRank": 20,
+          "quantity": 10,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": ""
+        }
+      ]
+    },
     {
       "id": "2026-07-03-gym-mr4pn10f-local-1783069797853",
       "climbedAt": "2026-07-03",
