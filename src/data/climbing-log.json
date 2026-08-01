@@ -74,6 +74,70 @@
   ],
   "sessions": [
     {
+      "id": "2026-08-01-gym-msa6q5yy-local-1785577848431",
+      "climbedAt": "2026-08-01",
+      "gymId": "gym-msa6q5yy",
+      "userId": "user-default",
+      "timeOfDay": "afternoon",
+      "notes": "",
+      "entries": [
+        {
+          "id": "local-entry-1785577818751-ebvl",
+          "discipline": "bouldering",
+          "gradeLabel": "V3",
+          "gradeRank": 30,
+          "quantity": 1,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": ""
+        },
+        {
+          "id": "local-entry-1785577835813-5vsl",
+          "discipline": "bouldering",
+          "gradeLabel": "V2",
+          "gradeRank": 20,
+          "quantity": 5,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": ""
+        }
+      ]
+    },
+    {
+      "id": "2026-08-01-gym-msa6ppm7-local-1785577809852",
+      "climbedAt": "2026-08-01",
+      "gymId": "gym-msa6ppm7",
+      "userId": "user-default",
+      "timeOfDay": "afternoon",
+      "notes": "",
+      "entries": [
+        {
+          "id": "local-entry-1785577779586-6o7n",
+          "discipline": "bouldering",
+          "gradeLabel": "V3",
+          "gradeRank": 30,
+          "quantity": 4,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": ""
+        },
+        {
+          "id": "local-entry-1785577792989-fjaz",
+          "discipline": "bouldering",
+          "gradeLabel": "V2",
+          "gradeRank": 20,
+          "quantity": 3,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": ""
+        }
+      ]
+    },
+    {
       "id": "2026-07-31-gym-mqpdnyip-local-1785548795346",
       "climbedAt": "2026-07-31",
       "gymId": "gym-mqpdnyip",
