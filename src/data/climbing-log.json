@@ -80,6 +80,49 @@
   ],
   "sessions": [
     {
+      "id": "2026-08-05-gym-mr4pn10f-local-1786377463188",
+      "climbedAt": "2026-08-05",
+      "gymId": "gym-mr4pn10f",
+      "userId": "anzai-mqqhnabb",
+      "timeOfDay": "evening",
+      "notes": "",
+      "entries": [
+        {
+          "id": "local-entry-1786377379390-zlo3",
+          "discipline": "bouldering",
+          "gradeLabel": "V3",
+          "gradeRank": 30,
+          "quantity": 4,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": ""
+        },
+        {
+          "id": "local-entry-1786377440514-c2lh",
+          "discipline": "bouldering",
+          "gradeLabel": "V2",
+          "gradeRank": 20,
+          "quantity": 9,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": ""
+        },
+        {
+          "id": "local-entry-1786548002657-gubd",
+          "discipline": "bouldering",
+          "gradeLabel": "V4",
+          "gradeRank": 40,
+          "quantity": 1,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": ""
+        }
+      ]
+    },
+    {
       "id": "2026-08-12-gym-mqpdnyip-local-1786547691922",
       "climbedAt": "2026-08-12",
       "gymId": "gym-mqpdnyip",
@@ -168,38 +211,6 @@
           "gradeLabel": "V2",
           "gradeRank": 20,
           "quantity": 7,
-          "notes": "",
-          "videoUrl": "",
-          "videoPlatform": "xiaohongshu",
-          "videoTitle": ""
-        }
-      ]
-    },
-    {
-      "id": "2026-08-05-gym-mr4pn10f-local-1786377463188",
-      "climbedAt": "2026-08-05",
-      "gymId": "gym-mr4pn10f",
-      "userId": "anzai-mqqhnabb",
-      "timeOfDay": "evening",
-      "notes": "",
-      "entries": [
-        {
-          "id": "local-entry-1786377379390-zlo3",
-          "discipline": "bouldering",
-          "gradeLabel": "V3",
-          "gradeRank": 30,
-          "quantity": 4,
-          "notes": "",
-          "videoUrl": "",
-          "videoPlatform": "xiaohongshu",
-          "videoTitle": ""
-        },
-        {
-          "id": "local-entry-1786377440514-c2lh",
-          "discipline": "bouldering",
-          "gradeLabel": "V2",
-          "gradeRank": 20,
-          "quantity": 9,
           "notes": "",
           "videoUrl": "",
           "videoPlatform": "xiaohongshu",
