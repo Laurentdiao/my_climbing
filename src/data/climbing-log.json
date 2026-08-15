@@ -80,6 +80,38 @@
   ],
   "sessions": [
     {
+      "id": "2026-08-15-gym-mrg0ijo5-local-1786776542195",
+      "climbedAt": "2026-08-15",
+      "gymId": "gym-mrg0ijo5",
+      "userId": "user-default",
+      "timeOfDay": "afternoon",
+      "notes": "",
+      "entries": [
+        {
+          "id": "local-entry-1786776521500-kxl3",
+          "discipline": "bouldering",
+          "gradeLabel": "V3",
+          "gradeRank": 30,
+          "quantity": 9,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": ""
+        },
+        {
+          "id": "local-entry-1786776538038-igw2",
+          "discipline": "bouldering",
+          "gradeLabel": "V2",
+          "gradeRank": 20,
+          "quantity": 10,
+          "notes": "",
+          "videoUrl": "",
+          "videoPlatform": "xiaohongshu",
+          "videoTitle": ""
+        }
+      ]
+    },
+    {
       "id": "2026-08-05-gym-mr4pn10f-local-1786377463188",
       "climbedAt": "2026-08-05",
       "gymId": "gym-mr4pn10f",
